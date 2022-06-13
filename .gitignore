@@ -1,0 +1,7 @@
+.gradle
+build
+common/build
+desktop/build
+android/build
+local.properties
+.idea
