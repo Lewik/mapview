@@ -1,0 +1,77 @@
+// Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPosition
+import androidx.compose.ui.window.WindowState
+import androidx.compose.ui.window.application
+import mapview.MAPTILER_SECRET_KEY
+import mapview.MapState
+import mapview.MapView
+
+
+fun main() = application {
+    Window(
+        onCloseRequest = ::exitApplication,
+        title = "Map View",
+        state = WindowState(
+            position = WindowPosition(Alignment.TopStart),
+            size = getPreferredWindowSize(1200, 600)
+        ),
+    ) {
+        val animate = false
+        if (animate) {
+            AnimatedMapView()
+        } else {
+            MapView(
+                modifier = Modifier.fillMaxSize(),
+                mapTilerSecretKey = MAPTILER_SECRET_KEY,
+                latitude = 59.999394,
+                longitude = 29.745412,
+                startScale = 1.0,
+                onMapViewClick = { latitude, longitude ->
+                    println("click on geo coordinates: (lat $latitude, lon $longitude)")
+                    true
+                }
+            )
+        }
+    }
+}
+
+
+@Composable
+fun AnimatedMapView() {
+    val infiniteTransition = rememberInfiniteTransition()
+    val animatedScale: Float by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 4200f,
+        animationSpec = infiniteRepeatable(
+            animation = keyframes {
+                durationMillis = 5_000
+                2f at 500
+                100f at 2000
+                4100f at 4_500
+            },
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+
+    val animatedMapState = derivedStateOf {
+        MapState(
+            latitude = 59.999394,
+            longitude = 29.745412,
+            scale = animatedScale.toDouble()
+        )
+    }
+    MapView(
+        modifier = Modifier.fillMaxSize(),
+        mapTilerSecretKey = MAPTILER_SECRET_KEY,
+        state = animatedMapState,
+        onStateChange = {}
+    )
+}
