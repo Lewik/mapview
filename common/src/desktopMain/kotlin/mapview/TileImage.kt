@@ -1,7 +1,6 @@
 package mapview
 
 import androidx.compose.ui.graphics.ImageBitmap
-import mapview.TileImage
 
 actual class TileImage(
     val platformSpecificData: ImageBitmap,
@@ -10,7 +9,7 @@ actual class TileImage(
     actual val cropSize: Int = TILE_SIZE,
 ) {
     actual fun lightweightDuplicate(offsetX: Int, offsetY: Int, cropSize: Int): TileImage =
-        mapview.TileImage(
+        TileImage(
             platformSpecificData,
             offsetX = offsetX,
             offsetY = offsetY,

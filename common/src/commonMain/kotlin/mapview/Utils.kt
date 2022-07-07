@@ -11,3 +11,5 @@ fun Offset.distanceTo(other: Offset): Double {
     val dy = other.y - y
     return sqrt(dx * dx + dy * dy).toDouble()
 }
+
+fun Any?.exhaustive() = Unit

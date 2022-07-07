@@ -12,6 +12,7 @@ allprojects {
 
 plugins {
     kotlin("multiplatform").version(KOTLIN_VERSION) apply (false)
+    kotlin("plugin.serialization").version(KOTLIN_VERSION) apply (false)
     kotlin("android").version(KOTLIN_VERSION) apply (false)
     id("com.android.application").version(AGP_VERSION) apply (false)
     id("com.android.library").version(AGP_VERSION) apply (false)

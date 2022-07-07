@@ -5,7 +5,7 @@ import io.ktor.client.request.*
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
-fun createRealRepository(ktorClient: HttpClient, mapTilerSecretKey: String) =
+fun createRealRepository(ktorClient: HttpClient) =
     object : ContentRepository<Tile, ByteArray> {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override suspend fun loadContent(tile: Tile): ByteArray {
@@ -17,7 +17,7 @@ fun createRealRepository(ktorClient: HttpClient, mapTilerSecretKey: String) =
                 delay(Random.nextLong(0, 3000))
             }
             return ktorClient.get(
-                urlString = Config.createTileUrl(tile.zoom, tile.x, tile.y, mapTilerSecretKey)
+                urlString = Config.createTileUrl(tile.zoom, tile.x, tile.y)
             )
         }
     }

@@ -4,7 +4,8 @@ import org.gradle.api.JavaVersion
 ////also check plugins version in root build.gradle.kts
 const val KOTLIN_VERSION = "1.6.10"
 //const val KOTLINX_COROUTINES_VERSION = "1.6.0"
-//const val SERIALIZATION_VERSION = "1.3.2"
+const val SERIALIZATION_VERSION = "1.3.2"
+
 //
 const val AGP_VERSION = "4.2.2"
 const val COMPOSE_VERSION = "1.1.1"

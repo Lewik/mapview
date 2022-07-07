@@ -1,10 +1,12 @@
 package mapview
 
+import mapview.GlobalMercator.toLatLon
+
 fun InternalMapState.toShortString(): String = buildString {
     appendLine("width: $width, height: $height")
-    appendLine("scale: ${scale.toShortString()}")
-//    appendLine("zoom: $zoom")
-    appendLine("lat: ${centerGeo.latitude.toShortString()}, lon: ${centerGeo.longitude.toShortString()}")
+    appendLine("zoom: ${zoom.toShortString()}")
+//    appendLine("center mercator: $center")
+//    appendLine("center lat lon: ${center.toLatLon()}")
 }
 
 fun Double.toShortString(significantDigits: Int = 5): String {

@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
+    kotlin("plugin.serialization")
 }
 
 group = "mapview"
@@ -23,6 +24,8 @@ kotlin {
             dependencies {
                 implementation(project(":common"))
                 implementation(compose.desktop.currentOs)
+                api("org.jetbrains.kotlinx:kotlinx-serialization-core:$SERIALIZATION_VERSION")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-json:$SERIALIZATION_VERSION")
             }
         }
         val jvmTest by getting
