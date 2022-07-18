@@ -9,7 +9,7 @@ data class ViewPoint(
 )
 
 fun ViewPoint.move(x: Number, y: Number) = ViewPoint(
-    focus = focus.copy(
+    focus = SchemeCoordinates(
         x = focus.x + x.toFloat(),
         y = focus.y + y.toFloat()
     ),

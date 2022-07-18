@@ -44,11 +44,11 @@ fun SchemeView(
                 event.changes.forEach { change ->
                     if (event.buttons.isPrimaryPressed) {
                         //Evaluating selection frame
-                        val dragStart = change.position
-                        val dpPos = DpOffset(dragStart.x.toDp(), dragStart.y.toDp())
+//                        val dragStart = change.position
+//                        val dpPos = DpOffset(dragStart.x.toDp(), dragStart.y.toDp())
 //                            onClick(MapViewPoint(dpPos.toGeodetic(), viewPoint.zoom))
                         drag(change.id) { dragChange ->
-                            val dragAmount = dragChange.position - dragChange.previousPosition
+                            val dragAmount = dragChange.position - change.position
                             onViewPointChange(
                                 viewPoint.move(
                                     x = -dragAmount.x.toDp().value / viewPoint.scale,
