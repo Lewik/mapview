@@ -2,6 +2,7 @@
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -69,7 +70,7 @@ fun main() = application {
     }
 
 
-    val initialViewPoint by remember {
+    var viewPoint by remember {
         mutableStateOf(
             ViewPoint(
                 focus = SchemeCoordinates(
@@ -89,7 +90,8 @@ fun main() = application {
     ) {
         SchemeView(
             features = features,
-            initialViewPoint = initialViewPoint,
+            onViewPointChange = { viewPoint = it },
+            viewPoint = viewPoint,
             modifier = Modifier
         )
     }

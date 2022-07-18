@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -31,13 +30,12 @@ fun SchemeView(
 //    onClick: MapViewPoint.() -> Unit,
 //    config: MapViewConfig,
     features: List<Feature>,
-    initialViewPoint: ViewPoint,
+    viewPoint: ViewPoint,
+    onViewPointChange: (viewPoint: ViewPoint) -> Unit,
     modifier: Modifier,
 ) {
 
     var canvasSize by remember { mutableStateOf(DpSize(512.dp, 512.dp)) }
-
-    var viewPoint by remember { mutableStateOf(initialViewPoint) }
 
     val canvasModifier = modifier.pointerInput(Unit) {
         forEachGesture {
@@ -51,9 +49,11 @@ fun SchemeView(
 //                            onClick(MapViewPoint(dpPos.toGeodetic(), viewPoint.zoom))
                         drag(change.id) { dragChange ->
                             val dragAmount = dragChange.position - dragChange.previousPosition
-                            viewPoint = viewPoint.move(
-                                x = -dragAmount.x.toDp().value / viewPoint.scale,
-                                y = -dragAmount.y.toDp().value / viewPoint.scale
+                            onViewPointChange(
+                                viewPoint.move(
+                                    x = -dragAmount.x.toDp().value / viewPoint.scale,
+                                    y = -dragAmount.y.toDp().value / viewPoint.scale
+                                )
                             )
                         }
                     }
@@ -71,7 +71,7 @@ fun SchemeView(
                     val scrollY = event.changes.first().scrollDelta.y
                     if (scrollY != 0f) {
                         val zoomSpeed = 1.0 / 3.0
-                        viewPoint = viewPoint.zoom(-scrollY * zoomSpeed, SchemeCoordinates(current.x, current.y))
+                        onViewPointChange(viewPoint.zoom(-scrollY * zoomSpeed, SchemeCoordinates(current.x, current.y)))
                     }
                 }
             }
