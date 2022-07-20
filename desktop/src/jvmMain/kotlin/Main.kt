@@ -89,7 +89,7 @@ fun main() = application {
             position = WindowPosition(Alignment.TopStart),
         ),
     ) {
-        SchemeView(
+        SchemeViewWithGestures(
             features = features,
             onViewPointChange = { viewPoint = it },
             viewPoint = viewPoint,

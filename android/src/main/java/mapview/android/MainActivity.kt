@@ -3,21 +3,70 @@ package mapview.android
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import mapview.MapView
+import androidx.compose.ui.graphics.Color
+import mapview.*
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MapView(
-                modifier = Modifier.fillMaxSize(),
-//                mapTilerSecretKey = MAPTILER_SECRET_KEY,
-//                latitude = 59.999394,
-//                longitude = 29.745412,
-//                startScale = 840.0,
+            val features by remember {
+                mutableStateOf(
+                    listOf(
+                        CircleFeature(
+                            position = SchemeCoordinates(
+                                x = 50f,
+                                y = 50f
+                            ),
+                            radius = 5f,
+                            color = Color.Red
+                        ),
+                        LineFeature(
+                            positionStart = SchemeCoordinates(
+                                x = 10f,
+                                y = 10f,
+                            ),
+                            positionEnd = SchemeCoordinates(
+                                x = 90f,
+                                y = 10f,
+                            ),
+                            color = Color.Blue
+                        )
+                    )
+                )
+            }
+
+
+            var viewPoint by remember {
+                mutableStateOf(
+                    ViewPoint(
+                        focus = SchemeCoordinates(
+                            x = 10f,
+                            y = 10f,
+                        ),
+                        scale = 1f
+                    )
+                )
+            }
+
+
+
+            SchemeViewWithGestures(
+                features = features,
+                onViewPointChange = { viewPoint = it },
+                viewPoint = viewPoint,
+                modifier = Modifier
             )
+
+
         }
     }
 }
+
+
+
