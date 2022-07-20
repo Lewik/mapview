@@ -5,7 +5,7 @@ package mapview
  */
 data class ViewPoint(
     val focus: SchemeCoordinates,
-    val scale: Float,
+    val scale: Double,
 )
 
 fun ViewPoint.move(x: Number, y: Number) = ViewPoint(
@@ -20,7 +20,7 @@ fun ViewPoint.zoom(
     scaleDelta: Number,
     invariant: SchemeCoordinates = focus,
 ): ViewPoint {
-    val newScale = scale.plus(scaleDelta.toFloat()).coerceIn(0f, Float.MAX_VALUE)
+    val newScale = scale.plus(scaleDelta.toFloat()).coerceIn(.0, Double.MAX_VALUE)
     return if (invariant == focus) {
         copy(scale = newScale)
     } else {

@@ -4,9 +4,9 @@ import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-
 @Composable
 actual fun SchemeViewWithGestures(
+    mapTileProvider: MapTileProvider?,
     features: List<Feature>,
     viewPoint: ViewPoint,
     onViewPointChange: (viewPoint: ViewPoint) -> Unit,
@@ -34,9 +34,13 @@ actual fun SchemeViewWithGestures(
 
 
     SchemeView(
+        mapTileProvider = mapTileProvider,
         features = features,
         viewPoint = viewPoint,
         onViewPointChange = onViewPointChange,
         modifier = canvasModifier
     )
 }
+
+
+

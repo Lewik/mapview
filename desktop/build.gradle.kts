@@ -1,6 +1,5 @@
 import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
@@ -24,6 +23,8 @@ kotlin {
             dependencies {
                 implementation(project(":common"))
                 implementation(compose.desktop.currentOs)
+                api("io.ktor:ktor-client-core:$KTOR_VERSION")
+                api("io.ktor:ktor-client-cio:$KTOR_VERSION")
                 api("org.jetbrains.kotlinx:kotlinx-serialization-core:$SERIALIZATION_VERSION")
                 api("org.jetbrains.kotlinx:kotlinx-serialization-json:$SERIALIZATION_VERSION")
             }

@@ -12,6 +12,7 @@ import androidx.compose.ui.input.pointer.positionChange
 
 @Composable
 actual fun SchemeViewWithGestures(
+    mapTileProvider: MapTileProvider?,
     features: List<Feature>,
     viewPoint: ViewPoint,
     onViewPointChange: (viewPoint: ViewPoint) -> Unit,
@@ -42,6 +43,7 @@ actual fun SchemeViewWithGestures(
 
 
     SchemeView(
+        mapTileProvider = mapTileProvider,
         features = features,
         viewPoint = viewPoint,
         onViewPointChange = onViewPointChange,

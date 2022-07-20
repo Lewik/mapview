@@ -7,8 +7,8 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.IntSize
 
 data class SchemeCoordinates(
-    val x: Float,
-    val y: Float,
+    val x: Double,
+    val y: Double,
 ) {
     operator fun plus(schemeCoordinates: SchemeCoordinates) = copy(
         x = x + schemeCoordinates.x,

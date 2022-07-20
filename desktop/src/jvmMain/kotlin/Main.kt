@@ -10,6 +10,10 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import mapview.*
 
 fun main() = application {
@@ -43,41 +47,61 @@ fun main() = application {
 //        }
 
 
+    val focusUnderAfrica = SchemeCoordinates(
+        x = 0.0,
+        y = 0.0,
+    )
+
+    val focusMoscow = SchemeCoordinates(
+        x = 4187378.060833,
+        y = 7508930.173748,
+    )
+
+    val focus = focusUnderAfrica
+    val scale = 5.0
+
     val features by remember {
         mutableStateOf(
             listOf(
                 CircleFeature(
-                    position = SchemeCoordinates(
-                        x = 50f,
-                        y = 50f
-                    ),
+                    position = focus,
                     radius = 5f,
                     color = Color.Red
                 ),
-                LineFeature(
-                    positionStart = SchemeCoordinates(
-                        x = 10f,
-                        y = 10f,
-                    ),
-                    positionEnd = SchemeCoordinates(
-                        x = 90f,
-                        y = 10f,
-                    ),
-                    color = Color.Blue
-                )
+//                LineFeature(
+//                    positionStart = SchemeCoordinates(
+//                        x = 10.0,
+//                        y = 10.0,
+//                    ),
+//                    positionEnd = SchemeCoordinates(
+//                        x = 90.0,
+//                        y = 10.0,
+//                    ),
+//                    color = Color.Blue
+//                )
+            )
+        )
+    }
+
+    var viewPoint by remember {
+        mutableStateOf(
+            ViewPoint(
+                focus = focus,
+                scale = scale
             )
         )
     }
 
 
-    var viewPoint by remember {
+    val mapTileProvider by remember {
+        val client = HttpClient(CIO)
         mutableStateOf(
-            ViewPoint(
-                focus = SchemeCoordinates(
-                    x = 10f,
-                    y = 10f,
-                ),
-                scale = 1f
+            MapTileProviderImpl(
+                getTile = { zoom, x, y ->
+                    println("KTOR request $zoom/$x/$y")
+                    val url = "https://tile.openstreetmap.org/$zoom/$x/$y.png"
+                    client.get(url).readBytes()
+                }
             )
         )
     }
@@ -90,6 +114,7 @@ fun main() = application {
         ),
     ) {
         SchemeViewWithGestures(
+            mapTileProvider = mapTileProvider,
             features = features,
             onViewPointChange = { viewPoint = it },
             viewPoint = viewPoint,
