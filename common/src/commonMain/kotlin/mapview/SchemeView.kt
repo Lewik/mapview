@@ -63,9 +63,9 @@ fun SchemeView(
 
                     mapTiles.clear()
 
-                    for (j in verticalIndices) {
-                        for (i in horizontalIndices) {
-                            val id = TileId(zoom, i, j)
+                    for (y in verticalIndices) {
+                        for (x in horizontalIndices) {
+                            val id = TileId(zoom, x, y)
 //                            launch {
                             try {
                                 mapTiles += loadTileAsync(id)
