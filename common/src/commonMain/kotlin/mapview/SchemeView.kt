@@ -53,10 +53,10 @@ fun SchemeView(
 
 //                    val topLeft = Offset.Zero.toSchemeCoordinates()
                     val center = viewPoint.focus
-                    if (center.x !in -MapTileProvider.SHIFT..MapTileProvider.SHIFT) {
+                    if (center.x !in -MapTileProvider.EQUATOR / 2..MapTileProvider.EQUATOR / 2) {
                         println("WARNING: topLeft out of bounds")
                     }
-                    if (center.y !in -MapTileProvider.SHIFT..MapTileProvider.SHIFT) {
+                    if (center.y !in -MapTileProvider.EQUATOR / 2..MapTileProvider.EQUATOR / 2) {
                         println("WARNING: topLeft out of bounds")
                     }
                     val tileNum = 2.0.pow(tileZoom)
@@ -130,27 +130,23 @@ fun SchemeView(
 //                    ceil((mapTileProvider.tileSize.dp * tileScale.toFloat()).toPx()).toInt()
                 )
                 mapTiles.forEach { (id, image) ->
-                    val tileNum = 2.0.pow(tileZoom)
-
                     val offset = with(viewPoint) {
-                        SchemeCoordinates(
-                            x = (MapTileProvider.SHIFT * 2 / tileNum * id.x) - (MapTileProvider.SHIFT ),
-                            y = -((MapTileProvider.SHIFT * 2 / tileNum * id.y) - (MapTileProvider.SHIFT )),
-                        )
+                        calculateBack(id.x, id.y, id.zoom)
                             .also {
-                                println("test x: ${it.x + MapTileProvider.SHIFT}")
-                                println("test y: ${it.y - MapTileProvider.SHIFT}")
-                                println("coord: $it")
+                                println("coord: $it, id: $id, tileZoom $tileZoom ${id.zoom}")
 
-                            }.toOffset()
+                            }
+                            .toOffset()
+
                     }.let {
+                        val tileNum = 2.0.pow(tileZoom)
                         println("tile $id tileNum $tileNum offset: $it")
                         IntOffset(it.x.toInt(), it.y.toInt())
                     }
                     println("int offset $offset")
                     drawImage(
                         image = image,
-//                        dstOffset = offset,
+                        dstOffset = offset,
                         dstSize = tileSize
                     )
                 }
@@ -206,22 +202,18 @@ fun SchemeView(
     }
 }
 
-fun calculate(center: SchemeCoordinates, zoom: Int): Pair<Int, Int> {
-    val equator = 40075016.68557849
-
-    val tileSize = 256.0
-
-    val tileX = (
-
-            (center.x + (equator / 2.0)) /
-                    (equator / tileSize)
-
-            ).toInt()
-    val tileY = (
-
-            (center.y - (equator / 2.0)) /
-                    (equator / -tileSize)
-
-            ).toInt()
+fun calculate(center: SchemeCoordinates, tileZoom: Int): Pair<Int, Int> {
+    val equator = MapTileProvider.EQUATOR
+    val tileNum = 2.0.pow(tileZoom)
+    val tileX = ((center.x + (equator / 2.0)) * tileNum / equator).toInt()
+    val tileY = (-(center.y - (equator / 2.0)) * tileNum / equator).toInt()
     return Pair(tileX, tileY)
+}
+
+fun calculateBack(tileX: Int, tileY: Int, tileZoom: Int): SchemeCoordinates {
+    val equator = MapTileProvider.EQUATOR
+    val tileNum = 2.0.pow(tileZoom)
+    val x = tileX * equator / tileNum - equator / 2.0
+    val y = -((tileY) * equator / tileNum) + (equator / 2.0)
+    return SchemeCoordinates(x, y)
 }

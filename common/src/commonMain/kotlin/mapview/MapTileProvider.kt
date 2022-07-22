@@ -28,6 +28,7 @@ interface MapTileProvider {
 //        const val EQUATOR = 20026376.39 * 2
 //        const val X = 20026376.39 * 2
 //        const val Y = 20048966.10 * 2
-        const val SHIFT = 20037508.342789244
+//        const val SHIFT = 20037508.342789244
+        const val  EQUATOR = 40075016.68557849
     }
 }
