@@ -61,8 +61,8 @@ fun main() = application {
         y = 7508930.173748,
     )
 
-    val focus = focusMoscow // SchemeCoordinates(50.0, -25.0)//focusMoscow focusUnderAfrica
-    val scale = 2.0.pow(9)
+    val focus = focusUnderAfrica // SchemeCoordinates(50.0, -25.0)//focusMoscow focusUnderAfrica
+    val scale = 2.0.pow(1)
 
     val features = remember {
         mutableStateOf(

@@ -1,4 +1,5 @@
 import mapview.SchemeCoordinates
+import mapview.TileId
 import mapview.calculate
 import mapview.calculateBack
 import kotlin.math.round
@@ -21,13 +22,13 @@ fun main() {
 
 
         val actual = calculate(focusMoscow, zoom)
-        val comparison = actual == x to y
+        val comparison = actual == TileId(zoom, x, y)
         val result = if (comparison) "OK $zoom: ${x to y}" else "WARNING BAD $zoom expect ${x to y}, actual $actual"
 
         if (comparison) {
-            val coord = calculateBack(actual.first, actual.second, zoom).let { round(it.x).toInt() to round(it.y).toInt() }
+            val coord = calculateBack(actual).let { round(it.x).toInt() to round(it.y).toInt() }
             val result2 = coord == b1 to b4
-            val test = if (result2) "tile OK" else "tile BAD $coord ${ b1 to b4}"
+            val test = if (result2) "tile OK" else "tile BAD $coord ${b1 to b4}"
             println(test)
         }
 

@@ -4,7 +4,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
@@ -29,95 +28,36 @@ fun SchemeView(
     onResize: (size: Size) -> Unit,
     modifier: Modifier,
 ) {
-//
-//    var canvasSize by remember { mutableStateOf(Size(512f, 512f)) }
-
-//    val scale by derivedStateOf { viewPoint.scale.toFloat() }
-
     val scale by derivedStateOf { viewPoint.scale }
     val zoom by derivedStateOf { log2(scale) }
     val tileZoom by derivedStateOf { zoom.toInt() }
     val tileScale by derivedStateOf { 2.0.pow((zoom - tileZoom)) }
-//
-//
-//    val centerCoordinates by derivedStateOf { viewPoint.focus }
-//
     val mapTiles = remember { mutableStateListOf<MapTile>() }
+
     val canvasModifier = modifier
         .fillMaxSize()
 
     if (mapTileProvider !== null) (
             LaunchedEffect(viewPoint) {
-                with(viewPoint) {
+                //val topLeft = Offset.Zero.toSchemeCoordinates()
+                val center = viewPoint.focus
 
+                val range = -MapTileProvider.EQUATOR / 2..MapTileProvider.EQUATOR / 2
+                if (center.x !in range || center.y !in range) println("WARNING: topLeft out of bounds")
 
-//                    val topLeft = Offset.Zero.toSchemeCoordinates()
-                    val center = viewPoint.focus
-                    if (center.x !in -MapTileProvider.EQUATOR / 2..MapTileProvider.EQUATOR / 2) {
-                        println("WARNING: topLeft out of bounds")
-                    }
-                    if (center.y !in -MapTileProvider.EQUATOR / 2..MapTileProvider.EQUATOR / 2) {
-                        println("WARNING: topLeft out of bounds")
-                    }
-                    val tileNum = 2.0.pow(tileZoom)
-//                    x = [1 + (x / π)] / 2
-//                    y = [1 − (y / π)] / 2
-//                    val tileX = ((1 + topLeft.x/MapTileProvider.SHIFT / PI) / 2 * tileNum).toInt()
-//                    val tileY =( (1 - topLeft.y/MapTileProvider.SHIFT / PI) / 2* tileNum).toInt()
-//                    var equator = 40075016.68557849;
-//                    var pixelX = (p.x + (equator / 2.0)) / (equator / 256.0);
-//                    var pixelY = ((p.y -(equator / 2.0)) / (equator / -256.0));
-//                    return L.point(pixelX, pixelY);
-                    val (tileX, tileY) = calculate(center, tileZoom)
-//                    val tileX = (topLeft.x * tileNum / MapTileProvider.X).toInt()
-//                    val tileY = ((MapTileProvider.Y - topLeft.y) * tileNum / MapTileProvider.Y).toInt()
+                val tileId = calculate(center, tileZoom)
 
-                    println("top left $center tile $tileX, $tileY")
-
-//
-                    with(mapTileProvider) {
-
-//                        val indexRange = 0 until scale.toInt()
-//                        val left = centerCoordinates.x - canvasSize.width.value / 2 / tileScale
-//                        val right = centerCoordinates.x + canvasSize.width.value / 2 / tileScale
-//                        val horizontalIndices: IntRange = (toIndex(left)..toIndex(right)).intersect(indexRange)
-//
-//                        val top = (centerCoordinates.y + canvasSize.height.value / 2 / tileScale)
-//                        val bottom = (centerCoordinates.y - canvasSize.height.value / 2 / tileScale)
-//                        val verticalIndices: IntRange = (toIndex(bottom)..toIndex(top)).intersect(indexRange)
-
-                        mapTiles.clear()
-                        loadTileAsync(TileId(tileZoom, tileX, tileY))?.also {
-                            mapTiles += it
-                        }
-
-//                        for (y in verticalIndices) {
-//                            for (x in horizontalIndices) {
-//                                val id = TileId(zoom, x, y)
-////                            launch {
-//                                try {
-//                                    mapTiles += loadTileAsync(id)
-//                                } catch (ex: Exception) {
-//                                    if (ex !is CancellationException) {
-//                                        println("Failed to load tile with id=$id")
-//                                    }
-//                                }
-////                            }
-//                            }
-//                        }
+                println("top left $center tileId $tileId")
+                with(mapTileProvider) {
+                    mapTiles.clear()
+                    loadTileAsync(tileId)?.also {
+                        mapTiles += it
                     }
                 }
             }
             )
 
     Canvas(canvasModifier) {
-//        fun SchemeCoordinates.toOffset(): Offset = Offset(
-//            ((x - viewPoint.focus.x) * scale).toFloat() + viewPoint.size.width / 2,
-//            -((y - viewPoint.focus.y) * scale).toFloat() + viewPoint.size.height / 2,
-////            (canvasSize.width / 2 + (x.dp - centerCoordinates.x.dp) * tileScale).toPx(),
-////            (canvasSize.height / 2 + (y.dp - centerCoordinates.y.dp) * tileScale).toPx()
-//        )
-
         if (viewPoint.size != size) {
             onResize(size)
         }
@@ -126,12 +66,10 @@ fun SchemeView(
                 val tileSize = IntSize(
                     width = ceil(mapTileProvider.tileSize * tileScale).toInt(),
                     height = ceil(mapTileProvider.tileSize * tileScale).toInt()
-//                    ceil((mapTileProvider.tileSize.dp * tileScale.toFloat()).toPx()).toInt(),
-//                    ceil((mapTileProvider.tileSize.dp * tileScale.toFloat()).toPx()).toInt()
                 )
                 mapTiles.forEach { (id, image) ->
                     val offset = with(viewPoint) {
-                        calculateBack(id.x, id.y, id.zoom)
+                        calculateBack(id)
                             .also {
                                 println("coord: $it, id: $id, tileZoom $tileZoom ${id.zoom}")
 
@@ -202,18 +140,18 @@ fun SchemeView(
     }
 }
 
-fun calculate(center: SchemeCoordinates, tileZoom: Int): Pair<Int, Int> {
+fun calculate(center: SchemeCoordinates, tileZoom: Int): TileId {
     val equator = MapTileProvider.EQUATOR
     val tileNum = 2.0.pow(tileZoom)
     val tileX = ((center.x + (equator / 2.0)) * tileNum / equator).toInt()
     val tileY = (-(center.y - (equator / 2.0)) * tileNum / equator).toInt()
-    return Pair(tileX, tileY)
+    return TileId(tileZoom, tileX, tileY)
 }
 
-fun calculateBack(tileX: Int, tileY: Int, tileZoom: Int): SchemeCoordinates {
+fun calculateBack(tileId: TileId): SchemeCoordinates {
     val equator = MapTileProvider.EQUATOR
-    val tileNum = 2.0.pow(tileZoom)
-    val x = tileX * equator / tileNum - equator / 2.0
-    val y = -((tileY) * equator / tileNum) + (equator / 2.0)
+    val tileNum = 2.0.pow(tileId.zoom)
+    val x = tileId.x * equator / tileNum - equator / 2.0
+    val y = -(tileId.y * equator / tileNum) + equator / 2.0
     return SchemeCoordinates(x, y)
 }
