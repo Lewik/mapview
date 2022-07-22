@@ -25,10 +25,7 @@ actual fun Modifier.canvasGestures(
             if (it.buttons.isPrimaryPressed) {
                 val dragAmount = it.changes.first().positionChange()
                 onViewPointChange(
-                    viewPoint.value.move(
-                        x = dragAmount.x,
-                        y = dragAmount.y
-                    )
+                    viewPoint.value.move(dragAmount)
                 )
             }
         }

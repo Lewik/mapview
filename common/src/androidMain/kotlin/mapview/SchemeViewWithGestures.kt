@@ -6,6 +6,7 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.pointerInput
+
 @Composable
 actual fun SchemeViewWithGestures(
     mapTileProvider: MapTileProvider?,
@@ -23,10 +24,7 @@ actual fun SchemeViewWithGestures(
                     onViewPointChange(
                         viewPoint
                             .value
-                            .move(
-                                x = -pan.x.toDp().value,
-                                y = -pan.y.toDp().value
-                            )
+                            .move(-pan)
                             .addScale(
                                 -gestureZoom * 1.0 / 3.0
 //                            SchemeCoordinates(change.position.x / viewPoint.scale, change.position.y / viewPoint.scale)

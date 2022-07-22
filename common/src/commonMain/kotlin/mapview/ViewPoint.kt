@@ -24,10 +24,10 @@ data class ViewPoint(
 }
 
 //in display coordinates
-fun ViewPoint.move(x: Number, y: Number) = ViewPoint(
+fun ViewPoint.move(dragAmount: Offset) = ViewPoint(
     focus = SchemeCoordinates(
-        x = focus.x - x.toFloat() / scale,
-        y = focus.y + y.toFloat() / scale
+        x = focus.x - dragAmount.x / scale,
+        y = focus.y + dragAmount.y / scale
     ),
     scale = scale,
     size = size
