@@ -7,12 +7,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.unit.toSize
 import kotlinx.coroutines.launch
-import kotlin.math.*
+import kotlin.math.ceil
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.pow
 
 
 private fun IntRange.intersect(other: IntRange) = max(first, other.first)..min(last, other.last)
@@ -47,16 +53,16 @@ fun SchemeView(
     }
 //    val zoom by derivedStateOf { log2(scale) }
     val tileZoom by derivedStateOf { zoom.toInt() }
-    val tileScale by derivedStateOf { MapTileProvider.EQUATOR * scale / 2.0.pow(zoom) }
-    println("AAA zoom $zoom tileZoom $tileZoom tileScale $tileScale (zoom - tileZoom) ${zoom - tileZoom}")
+    val tileSize by derivedStateOf { (MapTileProvider.EQUATOR * scale / 2.0.pow(zoom)).toInt() }
+    println("AAA zoom $zoom tileZoom $tileZoom (zoom - tileZoom) tileSize $tileSize ${zoom - tileZoom}")
     val mapTiles = remember { mutableStateListOf<MapTile>() }
-    val tileSize by derivedStateOf {
-        if (mapTileProvider != null) {
-            ceil(mapTileProvider.tileSize * tileScale).toInt()
-        } else {
-            0
-        }
-    }
+//    val tileSize by derivedStateOf {
+//        if (mapTileProvider != null) {
+//            ceil(mapTileProvider.tileSize * tileScale).toInt()
+//        } else {
+//            0
+//        }
+//    }
 
     val canvasModifier = modifier
         .fillMaxSize()
@@ -104,8 +110,8 @@ fun SchemeView(
         clipRect {
             if (mapTileProvider !== null) {
                 val tileSizeXY = IntSize(
-                    width = ceil(mapTileProvider.tileSize * tileScale).toInt(),
-                    height = ceil(mapTileProvider.tileSize * tileScale).toInt()
+                    width = tileSize,
+                    height = tileSize
                 )
                 mapTiles.forEach { (id, image) ->
                     val offset = with(viewPoint) {
@@ -125,6 +131,12 @@ fun SchemeView(
                         image = image,
                         dstOffset = offset,
                         dstSize = tileSizeXY
+                    )
+                    drawRect(
+                        color = Color.Red,
+                        topLeft = offset.toOffset(),
+                        size = tileSizeXY.toSize(),
+                        style = Stroke(width = 1f)
                     )
                 }
             }
