@@ -2,14 +2,17 @@ package mapview
 
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.pointerInput
 @Composable
 actual fun SchemeViewWithGestures(
     mapTileProvider: MapTileProvider?,
-    features: List<Feature>,
-    viewPoint: ViewPoint,
+    features: State<List<Feature>>,
+    viewPoint: State<ViewPoint>,
     onViewPointChange: (viewPoint: ViewPoint) -> Unit,
+    onResize: (size: Size) -> Unit,
     modifier: Modifier,
 ) {
 
@@ -19,9 +22,10 @@ actual fun SchemeViewWithGestures(
                 onGesture = { centroid, pan, gestureZoom, gestureRotate ->
                     onViewPointChange(
                         viewPoint
+                            .value
                             .move(
-                                x = -pan.x.toDp().value / viewPoint.scale,
-                                y = -pan.y.toDp().value / viewPoint.scale
+                                x = -pan.x.toDp().value,
+                                y = -pan.y.toDp().value
                             )
                             .zoom(
                                 -gestureZoom * 1.0 / 3.0
@@ -35,10 +39,11 @@ actual fun SchemeViewWithGestures(
 
     SchemeView(
         mapTileProvider = mapTileProvider,
-        features = features,
-        viewPoint = viewPoint,
+        features = features.value,
+        viewPoint = viewPoint.value,
         onViewPointChange = onViewPointChange,
-        modifier = canvasModifier
+        onResize = onResize,
+        modifier = canvasModifier,
     )
 }
 

@@ -1,7 +1,7 @@
 package mapview
 
 class MapTileProviderImpl(
-    private val getTile: suspend (zoom: Int, x: Int, y: Int) -> ByteArray,
+    private val getTile: suspend (zoom: Int, x: Int, y: Int) -> ByteArray?,
 ) : MapTileProvider {
 
 
@@ -10,9 +10,13 @@ class MapTileProviderImpl(
 
     override suspend fun loadTileAsync(
         tileId: TileId,
-    ): MapTile {
-        val image = downloadImageAsync(tileId).toImageBitmap()
-        return MapTile(tileId, image)
+    ): MapTile? {
+        val array = downloadImageAsync(tileId)
+        return if (array != null) {
+            MapTile(tileId, array.toImageBitmap())
+        } else {
+            null
+        }
     }
 
 }

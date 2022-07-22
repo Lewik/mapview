@@ -4,6 +4,7 @@ plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
     id("com.android.library")
+    `maven-publish`
 }
 
 group = "mapview"
@@ -57,6 +58,17 @@ kotlin {
         val desktopTest by getting
     }
 }
+
+//compose.desktop {
+//    application {
+//        mainClass = "MainKt"
+//        nativeDistributions {
+//            targetFormats(org.jetbrains.compose.desktop.application.dsl.TargetFormat.Dmg, org.jetbrains.compose.desktop.application.dsl.TargetFormat.Msi, org.jetbrains.compose.desktop.application.dsl.TargetFormat.Deb)
+//            packageName = "mapview"
+//            packageVersion = "1.0.0"
+//        }
+//    }
+//}
 
 android {
     compileSdkVersion(31)

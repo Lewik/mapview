@@ -15,7 +15,7 @@ data class MapTile(
 )
 
 interface MapTileProvider {
-    suspend fun loadTileAsync(tileId: TileId): MapTile
+    suspend fun loadTileAsync(tileId: TileId): MapTile?
 
     val tileSize: Int get() = DEFAULT_TILE_SIZE
 
@@ -25,5 +25,9 @@ interface MapTileProvider {
 
     companion object {
         const val DEFAULT_TILE_SIZE = 256
+//        const val EQUATOR = 20026376.39 * 2
+//        const val X = 20026376.39 * 2
+//        const val Y = 20048966.10 * 2
+        const val SHIFT = 20037508.342789244
     }
 }

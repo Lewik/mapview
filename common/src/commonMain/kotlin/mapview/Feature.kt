@@ -21,8 +21,13 @@ data class SchemeCoordinates(
     )
 
     operator fun times(a: Number) = copy(
-        x = x * a.toFloat(),
-        y = y * a.toFloat()
+        x = x * a.toDouble(),
+        y = y * a.toDouble()
+    )
+
+    operator fun div(a: Number) = copy(
+        x = x / a.toDouble(),
+        y = y / a.toDouble()
     )
 }
 

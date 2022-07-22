@@ -2,9 +2,10 @@
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
@@ -14,8 +15,11 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 import mapview.*
+import kotlin.math.pow
 
+@OptIn(ExperimentalComposeUiApi::class)
 fun main() = application {
 
 //    val content = object {}::class.java.getResource("/structure.json").readText()
@@ -57,37 +61,57 @@ fun main() = application {
         y = 7508930.173748,
     )
 
-    val focus = focusUnderAfrica
-    val scale = 5.0
+    val focus = focusMoscow // SchemeCoordinates(50.0, -25.0)//focusMoscow focusUnderAfrica
+    val scale = 2.0.pow(9)
 
-    val features by remember {
+    val features = remember {
         mutableStateOf(
             listOf(
+                LineFeature(
+                    positionStart = SchemeCoordinates(100.0, 100.0),
+                    positionEnd = SchemeCoordinates(-100.0, -100.0),
+                    color = Color.Blue
+                ),
+                LineFeature(
+                    positionStart = SchemeCoordinates(-100.0, 100.0),
+                    positionEnd = SchemeCoordinates(100.0, -100.0),
+                    color = Color.Green
+                ),
+                LineFeature(
+                    positionStart = SchemeCoordinates(0.0, 0.0),
+                    positionEnd = SchemeCoordinates(0.0, 50.0),
+                    color = Color.Blue
+                ),
+                LineFeature(
+                    positionStart = SchemeCoordinates(50.0, 0.0),
+                    positionEnd = SchemeCoordinates(50.0, 50.0),
+                    color = Color.Blue
+                ),
+                LineFeature(
+                    positionStart = SchemeCoordinates(100.0, 0.0),
+                    positionEnd = SchemeCoordinates(100.0, 50.0),
+                    color = Color.Blue
+                ),
                 CircleFeature(
                     position = focus,
-                    radius = 5f,
+                    radius = 3f,
                     color = Color.Red
                 ),
-//                LineFeature(
-//                    positionStart = SchemeCoordinates(
-//                        x = 10.0,
-//                        y = 10.0,
-//                    ),
-//                    positionEnd = SchemeCoordinates(
-//                        x = 90.0,
-//                        y = 10.0,
-//                    ),
-//                    color = Color.Blue
-//                )
+                CircleFeature(
+                    position = SchemeCoordinates(50.0, -25.0),
+                    radius = 2f,
+                    color = Color.Black
+                )
             )
         )
     }
 
-    var viewPoint by remember {
+    var viewPoint = remember {
         mutableStateOf(
             ViewPoint(
                 focus = focus,
-                scale = scale
+                scale = scale,
+                size = Size(512f, 512f)
             )
         )
     }
@@ -98,9 +122,15 @@ fun main() = application {
         mutableStateOf(
             MapTileProviderImpl(
                 getTile = { zoom, x, y ->
-                    println("KTOR request $zoom/$x/$y")
                     val url = "https://tile.openstreetmap.org/$zoom/$x/$y.png"
-                    client.get(url).readBytes()
+                    println("KTOR request $zoom/$x/$y ($url)")
+                    val result = client.get(url)
+                    if (result.status.isSuccess()) {
+                        result.readBytes()
+                    } else {
+                        println("WARNING KTOR can't get $zoom/$x/$y ")
+                        null
+                    }
                 }
             )
         )
@@ -113,12 +143,30 @@ fun main() = application {
             position = WindowPosition(Alignment.TopStart),
         ),
     ) {
-        SchemeViewWithGestures(
+
+//        SchemeViewWithGestures(
+//            mapTileProvider = mapTileProvider,
+//            features = features,
+//            onViewPointChange = { viewPoint.value = it },
+//            viewPoint = viewPoint,
+//            modifier = Modifier
+//        )
+        SchemeView(
             mapTileProvider = mapTileProvider,
-            features = features,
-            onViewPointChange = { viewPoint = it },
-            viewPoint = viewPoint,
-            modifier = Modifier
+            features = features.value,
+            onViewPointChange = { TODO() },
+            onResize = { viewPoint.value = viewPoint.value.copy(size = it) },
+            viewPoint = viewPoint.value,
+            modifier = Modifier.canvasGestures(
+                viewPoint = viewPoint,
+                onViewPointChange = { viewPoint.value = it },
+                onClick = { println("CLICK as $it") }
+            )
         )
+
+//        Outer()
+//        OuterWithProxy()
     }
 }
+
+
