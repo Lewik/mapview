@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
 import kotlinx.coroutines.launch
-import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
@@ -51,18 +50,11 @@ fun SchemeView(
             0
         }
     }
-//    val zoom by derivedStateOf { log2(scale) }
-    val tileZoom by derivedStateOf { zoom.toInt() }
-    val tileSize by derivedStateOf { (MapTileProvider.EQUATOR * scale / 2.0.pow(zoom)).toInt() }
-    println("AAA zoom $zoom tileZoom $tileZoom (zoom - tileZoom) tileSize $tileSize ${zoom - tileZoom}")
+    val tileNum by derivedStateOf { 2.0.pow(zoom).toInt() }
+    val tileSize by derivedStateOf { (MapTileProvider.EQUATOR * scale / tileNum).toInt() }
+    println("AAA zoom $zoom tileNum $tileNum tileSize $tileSize")
     val mapTiles = remember { mutableStateListOf<MapTile>() }
-//    val tileSize by derivedStateOf {
-//        if (mapTileProvider != null) {
-//            ceil(mapTileProvider.tileSize * tileScale).toInt()
-//        } else {
-//            0
-//        }
-//    }
+
 
     val canvasModifier = modifier
         .fillMaxSize()
@@ -76,9 +68,9 @@ fun SchemeView(
 //                    if (topLeft.x !in range || topLeft.y !in range) println("WARNING: topLeft out of bounds")
 
 
-                    val startTileId = calculate(topLeft, tileZoom)
-
-                    val tileIds = (0..(size.width / tileSize).toInt())
+                    val startTileId = calculate(topLeft, zoom)
+                    val tileRange = 0..tileNum
+                    val unfilteredTileIds = (0..(size.width / tileSize).toInt())
                         .flatMap { additionalX ->
                             (0..(size.height / tileSize).toInt())
                                 .map { additionalY ->
@@ -89,8 +81,13 @@ fun SchemeView(
                                 }
                         }
 
+                    val (tileIds, outOfRangeTiles) = unfilteredTileIds.partition { it.x in tileRange && it.y in tileRange }
+                    if (outOfRangeTiles.isNotEmpty()) {
+                        println("outOfRangeTiles $outOfRangeTiles")
+                    }
+
 //                println("top left $center tileId $tileId")
-                    println("tileIds (${tileIds.size}) $tileIds")
+                    println("tileIds (${tileIds.size}) (0..${size.width / tileSize} 0..${size.height / tileSize}) $tileIds")
                     mapTiles.clear()
                     tileIds.forEach { tileId ->
                         launch {
@@ -117,12 +114,11 @@ fun SchemeView(
                     val offset = with(viewPoint) {
                         calculateBack(id)
                             .also {
-                                println("coord: $it, id: $id, tileZoom $tileZoom ${id.zoom}")
+                                println("coord: $it, id: $id, zoom $zoom ${id.zoom}")
                             }
                             .toOffset()
 
                     }.let {
-                        val tileNum = 2.0.pow(tileZoom)
                         println("tile $id tileNum $tileNum offset: $it")
                         IntOffset(it.x.toInt(), it.y.toInt())
                     }
@@ -201,12 +197,12 @@ fun SchemeView(
     }
 }
 
-fun calculate(center: SchemeCoordinates, tileZoom: Int): TileId {
+fun calculate(center: SchemeCoordinates, zoom: Int): TileId {
     val equator = MapTileProvider.EQUATOR
-    val tileNum = 2.0.pow(tileZoom)
+    val tileNum = 2.0.pow(zoom)
     val tileX = ((center.x + (equator / 2.0)) * tileNum / equator).toInt()
     val tileY = (-(center.y - (equator / 2.0)) * tileNum / equator).toInt()
-    return TileId(tileZoom, tileX, tileY)
+    return TileId(zoom, tileX, tileY)
 }
 
 fun calculateBack(tileId: TileId): SchemeCoordinates {
