@@ -34,6 +34,7 @@ fun SchemeView(
     val zoom by derivedStateOf { log2(scale) }
     val tileZoom by derivedStateOf { zoom.toInt() }
     val tileScale by derivedStateOf { 2.0.pow((zoom - tileZoom)) }
+    println("AAA zoom $zoom tileZoom $tileZoom tileScale $tileScale (zoom - tileZoom) ${zoom - tileZoom}")
     val mapTiles = remember { mutableStateListOf<MapTile>() }
 
     val canvasModifier = modifier
@@ -49,7 +50,7 @@ fun SchemeView(
 
                 val tileId = calculate(center, tileZoom)
 
-                println("top left $center tileId $tileId")
+//                println("top left $center tileId $tileId")
                 with(mapTileProvider) {
                     mapTiles.clear()
                     loadTileAsync(tileId)?.also {
@@ -74,7 +75,6 @@ fun SchemeView(
                         calculateBack(id)
                             .also {
                                 println("coord: $it, id: $id, tileZoom $tileZoom ${id.zoom}")
-
                             }
                             .toOffset()
 

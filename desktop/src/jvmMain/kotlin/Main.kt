@@ -119,16 +119,24 @@ fun main() = application {
     }
 
 
+    val cache = LruCache<Triple<Int, Int, Int>, ByteArray>(50)
     val mapTileProvider by remember {
         val client = HttpClient(CIO)
         mutableStateOf(
             MapTileProviderImpl(
                 getTile = { zoom, x, y ->
+                    val key = Triple(zoom, x, y)
+                    val cached = cache[key]
+                    if (cached != null) {
+                        return@MapTileProviderImpl cached
+                    }
                     val url = "https://tile.openstreetmap.org/$zoom/$x/$y.png"
-                    println("KTOR request $zoom/$x/$y ($url)")
+//                    println("KTOR request $zoom/$x/$y ($url)")
                     val result = client.get(url)
                     if (result.status.isSuccess()) {
-                        result.readBytes()
+                        val data = result.readBytes()
+                        cache.put(key, data)
+                        data
                     } else {
                         println("WARNING KTOR can't get $zoom/$x/$y ")
                         null
@@ -153,7 +161,7 @@ fun main() = application {
 //            viewPoint = viewPoint,
 //            modifier = Modifier
 //        )
-        Box{
+        Box {
             Text("${viewPoint.value}")
         }
         SchemeView(

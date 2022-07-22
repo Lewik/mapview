@@ -3,7 +3,7 @@ package mapview
 import kotlin.jvm.Synchronized
 
 
-internal class LruCache<K, V>(
+class LruCache<K, V>(
     private var capacity: Int,
 ) {
     private val cache = linkedMapOf<K, V>()
