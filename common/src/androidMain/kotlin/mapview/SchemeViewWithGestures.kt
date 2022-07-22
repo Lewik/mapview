@@ -27,7 +27,7 @@ actual fun SchemeViewWithGestures(
                                 x = -pan.x.toDp().value,
                                 y = -pan.y.toDp().value
                             )
-                            .zoom(
+                            .addScale(
                                 -gestureZoom * 1.0 / 3.0
 //                            SchemeCoordinates(change.position.x / viewPoint.scale, change.position.y / viewPoint.scale)
                             )

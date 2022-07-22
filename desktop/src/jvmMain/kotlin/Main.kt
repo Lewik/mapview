@@ -1,4 +1,6 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -151,6 +153,9 @@ fun main() = application {
 //            viewPoint = viewPoint,
 //            modifier = Modifier
 //        )
+        Box{
+            Text("${viewPoint.value}")
+        }
         SchemeView(
             mapTileProvider = mapTileProvider,
             features = features.value,

@@ -4,7 +4,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 
 /**
- * Observable position on the map. Includes observation coordinate and [zoom] factor
+ * Observable position on the map. Includes observation coordinate and [scale] factor
  */
 data class ViewPoint(
     val size: Size,
@@ -33,13 +33,13 @@ fun ViewPoint.move(x: Number, y: Number) = ViewPoint(
     size = size
 )
 
-fun ViewPoint.zoom(
+fun ViewPoint.addScale(
     scaleDelta: Number,
 //    invariant: SchemeCoordinates = focus,
 ): ViewPoint {
     val newScale = scale
         .plus(scaleDelta.toFloat())
-        .coerceIn(.0, Double.MAX_VALUE)
+        .coerceIn(1.0, Double.MAX_VALUE)
     return copy(scale = newScale)
 //    return if (invariant == focus) {
 //        copy(scale = newScale)

@@ -26,7 +26,7 @@ actual fun SchemeViewWithGestures(
             val change = it.changes.first()
             val scrollY = change.scrollDelta.y
             onViewPointChange(
-                viewPoint.value.zoom(
+                viewPoint.value.addScale(
                     -scrollY,// * 1.0 / 3.0,
 //                    SchemeCoordinates(change.position.x / viewPoint.value.scale, change.position.y / viewPoint.value.scale)
                 )
