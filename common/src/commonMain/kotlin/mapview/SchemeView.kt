@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import kotlinx.coroutines.launch
 import kotlin.math.*
 
 
@@ -36,25 +37,49 @@ fun SchemeView(
     val tileScale by derivedStateOf { 2.0.pow((zoom - tileZoom)) }
     println("AAA zoom $zoom tileZoom $tileZoom tileScale $tileScale (zoom - tileZoom) ${zoom - tileZoom}")
     val mapTiles = remember { mutableStateListOf<MapTile>() }
+    val tileSize by derivedStateOf {
+        if (mapTileProvider != null) {
+            ceil(mapTileProvider.tileSize * tileScale).toInt()
+        } else {
+            0
+        }
+    }
 
     val canvasModifier = modifier
         .fillMaxSize()
 
     if (mapTileProvider !== null) (
             LaunchedEffect(viewPoint) {
-                //val topLeft = Offset.Zero.toSchemeCoordinates()
-                val center = viewPoint.focus
+                with(viewPoint) {
+                    val topLeft = Offset.Zero.toSchemeCoordinates()// viewPoint.focus
 
-                val range = -MapTileProvider.EQUATOR / 2..MapTileProvider.EQUATOR / 2
-                if (center.x !in range || center.y !in range) println("WARNING: topLeft out of bounds")
+//                    val range = -MapTileProvider.EQUATOR / 2..MapTileProvider.EQUATOR / 2
+//                    if (topLeft.x !in range || topLeft.y !in range) println("WARNING: topLeft out of bounds")
 
-                val tileId = calculate(center, tileZoom)
+
+                    val startTileId = calculate(topLeft, tileZoom)
+
+                    var horizontalTileNum = size.width / tileSize
+                    var verticalTileNum = size.height / tileSize
+
+                    val tileIds = (0..(size.width / tileSize).toInt()).flatMap { additionalX ->
+                        (0..(size.height / tileSize).toInt()).map { additionalY ->
+                            startTileId.copy(
+                                x = startTileId.x + additionalX,
+                                y = startTileId.y + additionalY,
+                            )
+                        }
+                    }
 
 //                println("top left $center tileId $tileId")
-                with(mapTileProvider) {
+                    println("tileIds (${tileIds.size}) $tileIds")
                     mapTiles.clear()
-                    loadTileAsync(tileId)?.also {
-                        mapTiles += it
+                    tileIds.forEach { tileId ->
+                        launch {
+                            mapTileProvider.loadTileAsync(startTileId)?.also {
+                                mapTiles += it
+                            }
+                        }
                     }
                 }
             }
@@ -66,7 +91,7 @@ fun SchemeView(
         }
         clipRect {
             if (mapTileProvider !== null) {
-                val tileSize = IntSize(
+                val tileSizeXY = IntSize(
                     width = ceil(mapTileProvider.tileSize * tileScale).toInt(),
                     height = ceil(mapTileProvider.tileSize * tileScale).toInt()
                 )
@@ -83,11 +108,11 @@ fun SchemeView(
                         println("tile $id tileNum $tileNum offset: $it")
                         IntOffset(it.x.toInt(), it.y.toInt())
                     }
-                    println("int offset $offset")
+                    println("int offset $offset, tileSizeXY $tileSizeXY")
                     drawImage(
                         image = image,
                         dstOffset = offset,
-                        dstSize = tileSize
+                        dstSize = tileSizeXY
                     )
                 }
             }
