@@ -4,7 +4,9 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.IntOffset
@@ -90,6 +92,16 @@ fun SchemeView(
                 }
             }
             with(viewPoint) {
+                drawLine(
+                    color = Color.DarkGray,
+                    start = Offset(size.width / 2, 0f),
+                    end = Offset(size.width / 2, size.height)
+                )
+                drawLine(
+                    color = Color.DarkGray,
+                    start = Offset(0f, size.height / 2),
+                    end = Offset(size.width, size.height / 2)
+                )
                 features.forEach { feature ->
                     when (feature) {
                         is CircleFeature -> drawCircle(
