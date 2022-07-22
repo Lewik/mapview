@@ -32,9 +32,22 @@ fun SchemeView(
     modifier: Modifier,
 ) {
     val scale by derivedStateOf { viewPoint.scale }
-    val zoom by derivedStateOf { log2(scale) }
+
+    val zoom by derivedStateOf {
+        if (mapTileProvider != null) {
+            (1..20).first { zoom ->
+                val totalTiles = 2.0.pow(zoom)
+                val scaledMapSize = MapTileProvider.EQUATOR * scale
+                val scaledTileSize = scaledMapSize / totalTiles
+                scaledTileSize < mapTileProvider.tileSize
+            }
+        } else {
+            0
+        }
+    }
+//    val zoom by derivedStateOf { log2(scale) }
     val tileZoom by derivedStateOf { zoom.toInt() }
-    val tileScale by derivedStateOf { 2.0.pow((zoom - tileZoom)) }
+    val tileScale by derivedStateOf { MapTileProvider.EQUATOR * scale / 2.0.pow(zoom) }
     println("AAA zoom $zoom tileZoom $tileZoom tileScale $tileScale (zoom - tileZoom) ${zoom - tileZoom}")
     val mapTiles = remember { mutableStateListOf<MapTile>() }
     val tileSize by derivedStateOf {
@@ -51,7 +64,7 @@ fun SchemeView(
     if (mapTileProvider !== null) (
             LaunchedEffect(viewPoint) {
                 with(viewPoint) {
-                    val topLeft = Offset.Zero.toSchemeCoordinates()// viewPoint.focus
+                    val topLeft = Offset.Zero.toSchemeCoordinates()
 
 //                    val range = -MapTileProvider.EQUATOR / 2..MapTileProvider.EQUATOR / 2
 //                    if (topLeft.x !in range || topLeft.y !in range) println("WARNING: topLeft out of bounds")
@@ -59,17 +72,16 @@ fun SchemeView(
 
                     val startTileId = calculate(topLeft, tileZoom)
 
-                    var horizontalTileNum = size.width / tileSize
-                    var verticalTileNum = size.height / tileSize
-
-                    val tileIds = (0..(size.width / tileSize).toInt()).flatMap { additionalX ->
-                        (0..(size.height / tileSize).toInt()).map { additionalY ->
-                            startTileId.copy(
-                                x = startTileId.x + additionalX,
-                                y = startTileId.y + additionalY,
-                            )
+                    val tileIds = (0..(size.width / tileSize).toInt())
+                        .flatMap { additionalX ->
+                            (0..(size.height / tileSize).toInt())
+                                .map { additionalY ->
+                                    startTileId.copy(
+                                        x = startTileId.x + additionalX,
+                                        y = startTileId.y + additionalY,
+                                    )
+                                }
                         }
-                    }
 
 //                println("top left $center tileId $tileId")
                     println("tileIds (${tileIds.size}) $tileIds")

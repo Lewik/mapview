@@ -37,9 +37,8 @@ fun ViewPoint.addScale(
     scaleDelta: Number,
 //    invariant: SchemeCoordinates = focus,
 ): ViewPoint {
-    val newScale = scale
-        .plus(scaleDelta.toFloat())
-        .coerceIn(1.0, Double.MAX_VALUE)
+    println("scaleDelta $scaleDelta")
+    val newScale = (scale * (1 + scaleDelta.toFloat() /10)).coerceIn(0.0, Double.MAX_VALUE)
     return copy(scale = newScale)
 //    return if (invariant == focus) {
 //        copy(scale = newScale)
