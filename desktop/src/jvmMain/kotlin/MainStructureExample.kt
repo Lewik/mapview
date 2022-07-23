@@ -1,11 +1,7 @@
-// Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-import androidx.compose.foundation.layout.Box
-import androidx.compose.material.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -18,40 +14,46 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import mapview.*
 import kotlin.math.pow
 
-@OptIn(ExperimentalComposeUiApi::class)
 fun main() = application {
+    val features = remember {
 
-//    val content = object {}::class.java.getResource("/structure.json").readText()
-//    val structure = Json { ignoreUnknownKeys = true }.decodeFromString<Structure>(content)
-//
-//    val connectionCoordinates = structure
-//        .buildingsById
-//        .values
-//        .flatMap { building -> building.deviceList.flatMap { it.connections.map { it to building.coordinates } } }
-//        .map { it.first to Meters(x = it.second.lat, y = it.second.lng) }
-//        .toMap()
-//
-//
-//    val lines = structure.linesById.values
-//        .map {
-//            Line(
-//                start = connectionCoordinates.getValue(it.connections[0]),
-//                end = connectionCoordinates.getValue(it.connections[1]),
-//                color = Color(0, 255, 0)
-//            )
-//        }
-//
-//    val buildings = structure.buildingsById.values
-//        .map {
-//            Circle(
-//                center = Meters(x = it.coordinates.lat, y = it.coordinates.lng),
-//                color = Color(0, 255, 0)
-//            )
-//        }
+        val content = object {}::class.java.getResource("/structure.json").readText()
+        val structure = Json { ignoreUnknownKeys = true }.decodeFromString<Structure>(content)
 
+        val connectionCoordinates = structure
+            .buildingsById
+            .values
+            .flatMap { building -> building.deviceList.flatMap { it.connections.map { it to building.coordinates } } }
+            .map { it.first to SchemeCoordinates(x = it.second.lat, y = it.second.lng) }
+            .toMap()
+
+
+        val lines = structure.linesById.values
+            .map {
+                LineFeature(
+                    positionStart = connectionCoordinates.getValue(it.connections[0]),
+                    positionEnd = connectionCoordinates.getValue(it.connections[1]),
+                    color = Color(0, 255, 0)
+                )
+            }
+
+        val buildings = structure.buildingsById.values
+            .map {
+                CircleFeature(
+                    position = SchemeCoordinates(x = it.coordinates.lat, y = it.coordinates.lng),
+                    radius = 5f,
+                    color = Color(0, 255, 0)
+                )
+            }
+
+        lines + buildings
+
+    }
 
     val focusUnderAfrica = SchemeCoordinates(
         x = 0.0,
@@ -66,47 +68,6 @@ fun main() = application {
     val focus = focusMoscow // SchemeCoordinates(50.0, -25.0)//focusMoscow focusUnderAfrica
     val scale = 2.0.pow(1)
 
-    val features = remember {
-        mutableStateOf(
-            listOf(
-                LineFeature(
-                    positionStart = SchemeCoordinates(100.0, 100.0),
-                    positionEnd = SchemeCoordinates(-100.0, -100.0),
-                    color = Color.Blue
-                ),
-                LineFeature(
-                    positionStart = SchemeCoordinates(-100.0, 100.0),
-                    positionEnd = SchemeCoordinates(100.0, -100.0),
-                    color = Color.Green
-                ),
-                LineFeature(
-                    positionStart = SchemeCoordinates(0.0, 0.0),
-                    positionEnd = SchemeCoordinates(0.0, 50.0),
-                    color = Color.Blue
-                ),
-                LineFeature(
-                    positionStart = SchemeCoordinates(50.0, 0.0),
-                    positionEnd = SchemeCoordinates(50.0, 50.0),
-                    color = Color.Blue
-                ),
-                LineFeature(
-                    positionStart = SchemeCoordinates(100.0, 0.0),
-                    positionEnd = SchemeCoordinates(100.0, 50.0),
-                    color = Color.Blue
-                ),
-                CircleFeature(
-                    position = focus,
-                    radius = 3f,
-                    color = Color.Red
-                ),
-                CircleFeature(
-                    position = SchemeCoordinates(50.0, -25.0),
-                    radius = 2f,
-                    color = Color.Black
-                )
-            )
-        )
-    }
 
     var viewData = remember {
         mutableStateOf(
@@ -156,7 +117,7 @@ fun main() = application {
     ) {
         SchemeView(
             mapTileProvider = mapTileProvider,
-            features = features.value,
+            features = features,
             onViewDataChange = { TODO() },
             onResize = { viewData.value = viewData.value.copy(size = it) },
             viewData = viewData.value,
@@ -166,13 +127,6 @@ fun main() = application {
                 onClick = { println("CLICK as $it") }
             )
         )
-
-        Box {
-            Text("${viewData.value}")
-        }
-
-//        Outer()
-//        OuterWithProxy()
     }
 }
 
