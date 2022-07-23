@@ -81,17 +81,18 @@ fun SchemeView(
                                 }
                         }
 
-                    val (tileIds, outOfRangeTiles) = unfilteredTileIds.partition { it.x in tileRange && it.y in tileRange }
-                    if (outOfRangeTiles.isNotEmpty()) {
-                        println("outOfRangeTiles $outOfRangeTiles")
-                    }
+                    val tileIds = unfilteredTileIds
+//                    val (tileIds, outOfRangeTiles) = unfilteredTileIds.partition { it.x in tileRange && it.y in tileRange }
+//                    if (outOfRangeTiles.isNotEmpty()) {
+//                        println("outOfRangeTiles $outOfRangeTiles")
+//                    }
 
 //                println("top left $center tileId $tileId")
                     println("tileIds (${tileIds.size}) (0..${size.width / tileSize} 0..${size.height / tileSize}) $tileIds")
                     mapTiles.clear()
                     tileIds.forEach { tileId ->
                         launch {
-                            mapTileProvider.loadTileAsync(startTileId)?.also {
+                            mapTileProvider.loadTileAsync(tileId)?.also {
                                 mapTiles += it
                             }
                         }
@@ -114,15 +115,14 @@ fun SchemeView(
                     val offset = with(viewPoint) {
                         calculateBack(id)
                             .also {
-                                println("coord: $it, id: $id, zoom $zoom ${id.zoom}")
+//                                println("coord: $it, id: $id, zoom $zoom ${id.zoom}")
                             }
                             .toOffset()
 
                     }.let {
-                        println("tile $id tileNum $tileNum offset: $it")
                         IntOffset(it.x.toInt(), it.y.toInt())
                     }
-                    println("int offset $offset, tileSizeXY $tileSizeXY")
+                    println("tile $id tileNum $tileNum int offset $offset, tileSizeXY $tileSizeXY")
                     drawImage(
                         image = image,
                         dstOffset = offset,
