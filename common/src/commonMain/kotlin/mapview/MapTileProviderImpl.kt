@@ -1,7 +1,9 @@
 package mapview
 
+import androidx.compose.ui.graphics.ImageBitmap
+
 class MapTileProviderImpl(
-    private val getTile: suspend (zoom: Int, x: Int, y: Int) -> ByteArray?,
+    private val getTile: suspend (zoom: Int, x: Int, y: Int) -> ImageBitmap?,
 ) : MapTileProvider {
 
 
@@ -11,9 +13,9 @@ class MapTileProviderImpl(
     override suspend fun loadTileAsync(
         tileId: TileId,
     ): MapTile? {
-        val array = downloadImageAsync(tileId)
-        return if (array != null) {
-            MapTile(tileId, array.toImageBitmap())
+        val imageBitmap = downloadImageAsync(tileId)
+        return if (imageBitmap != null) {
+            MapTile(tileId, imageBitmap)
         } else {
             null
         }

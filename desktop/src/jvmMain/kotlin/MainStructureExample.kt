@@ -5,6 +5,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -115,7 +116,7 @@ fun main() = application {
     }
 
 
-    val cache = LruCache<Triple<Int, Int, Int>, ByteArray>(50)
+    val cache = LruCache<Triple<Int, Int, Int>, ImageBitmap>(200)
     val mapTileProvider by remember {
         val client = HttpClient(CIO)
         mutableStateOf(
@@ -130,7 +131,7 @@ fun main() = application {
 //                    println("KTOR request $zoom/$x/$y ($url)")
                     val result = client.get(url)
                     if (result.status.isSuccess()) {
-                        val data = result.readBytes()
+                        val data = result.readBytes().toImageBitmap()
                         cache.put(key, data)
                         data
                     } else {

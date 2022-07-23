@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -65,7 +66,7 @@ class MainActivity : AppCompatActivity() {
             }
 
 
-            val cache = LruCache<Triple<Int, Int, Int>, ByteArray>(50)
+            val cache = LruCache<Triple<Int, Int, Int>, ImageBitmap>(200)
             val mapTileProvider by remember {
                 val client = HttpClient(CIO)
                 mutableStateOf(
@@ -81,7 +82,7 @@ class MainActivity : AppCompatActivity() {
                                 client.get(url)
                             }
                             if (result.status.isSuccess()) {
-                                val data = result.readBytes()
+                                val data = result.readBytes().toImageBitmap()
                                 cache.put(key, data)
                                 data
                             } else {
