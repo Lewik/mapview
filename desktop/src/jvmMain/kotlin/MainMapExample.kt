@@ -1,5 +1,3 @@
-import androidx.compose.foundation.layout.Box
-import androidx.compose.material.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,7 +48,8 @@ fun main() = application {
             ViewData(
                 focus = focus,
                 scale = scale,
-                size = Size(512f, 512f)
+                size = Size(512f, 512f),
+                showDebug = true,
             )
         )
     }
@@ -101,11 +100,6 @@ fun main() = application {
                 onClick = { println("CLICK as $it") }
             )
         )
-
-        Box {
-            Text("${viewData.value}")
-        }
-
     }
 }
 

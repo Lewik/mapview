@@ -10,6 +10,7 @@ data class ViewData(
     val size: Size,
     val focus: SchemeCoordinates,
     val scale: Double,
+    val showDebug: Boolean,
 ) {
     fun Offset.toSchemeCoordinates(
     ) = SchemeCoordinates(
@@ -24,7 +25,7 @@ data class ViewData(
 }
 
 //in display coordinates
-fun ViewData.move(dragAmount: Offset) = ViewData(
+fun ViewData.move(dragAmount: Offset) = copy(
     focus = SchemeCoordinates(
         x = focus.x - dragAmount.x / scale,
         y = focus.y + dragAmount.y / scale

@@ -1,7 +1,12 @@
 package mapview
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -10,10 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.toOffset
-import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.unit.*
 import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
@@ -190,6 +192,23 @@ fun SchemeView(
                     }.exhaustive()
 
                 }
+            }
+        }
+    }
+
+    if (viewData.showDebug) {
+        Box {
+            Column(
+                modifier = Modifier
+                    .background(color = Color.White.copy(alpha = .5f))
+                    .padding(10.dp)
+            ) {
+                Text("Focus: x:${viewData.focus.x}, y:${viewData.focus.x}")
+                Text("Scale: ${viewData.scale}")
+                if (mapTileProvider != null) {
+                    Text("Zoom: $zoom")
+                }
+                Text("Size: width:${viewData.size.width},height: ${viewData.size.height}")
             }
         }
     }

@@ -64,7 +64,8 @@ fun main() = application {
             ViewData(
                 focus = focus,
                 scale = scale,
-                size = Size(512f, 512f)
+                size = Size(512f, 512f),
+                showDebug = true,
             )
         )
     }
