@@ -5,6 +5,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
@@ -20,39 +23,70 @@ import mapview.*
 import kotlin.math.pow
 
 fun main() = application {
+    val density = LocalDensity.current
+
     val features = remember {
+        with(density) {
+            val content = object {}::class.java.getResource("/structure.json").readText()
+            val structure = Json { ignoreUnknownKeys = true }.decodeFromString<Structure>(content)
 
-        val content = object {}::class.java.getResource("/structure.json").readText()
-        val structure = Json { ignoreUnknownKeys = true }.decodeFromString<Structure>(content)
-
-        val connectionCoordinates = structure
-            .buildingsById
-            .values
-            .flatMap { building -> building.deviceList.flatMap { it.connections.map { it to building.coordinates } } }
-            .map { it.first to SchemeCoordinates(x = it.second.lat, y = it.second.lng) }
-            .toMap()
+            val connectionCoordinates = structure
+                .buildingsById
+                .values
+                .flatMap { building -> building.deviceList.flatMap { it.connections.map { it to building.coordinates } } }
+                .map { it.first to SchemeCoordinates(x = it.second.lng, y = it.second.lat) }
+                .toMap()
 
 
-        val lines = structure.linesById.values
-            .map {
-                LineFeature(
-                    positionStart = connectionCoordinates.getValue(it.connections[0]),
-                    positionEnd = connectionCoordinates.getValue(it.connections[1]),
-                    color = Color(0, 255, 0)
-                )
-            }
+            val lines = structure.linesById.values
+                .map {
+                    LineFeature(
+                        positionStart = connectionCoordinates.getValue(it.connections[0]),
+                        positionEnd = connectionCoordinates.getValue(it.connections[1]),
+                        color = Color(56, 215, 41),
+                        width = 2.dp,
+                    )
+                }
 
-        val buildings = structure.buildingsById.values
-            .map {
-                CircleFeature(
-                    position = SchemeCoordinates(x = it.coordinates.lat, y = it.coordinates.lng),
-                    radius = 5f,
-                    color = Color(0, 255, 0)
-                )
-            }
 
-        lines + buildings
+            val buildings = structure.buildingsById.values
+                .filter { it.type != Building.Type.PILLAR }
+                .sortedBy { it.type == Building.Type.SUB_STATION }
+                .flatMap {
+                    if (it.type == Building.Type.SUB_STATION) {
+                        listOf(
+                            CircleFeature(
+                                position = SchemeCoordinates(x = it.coordinates.lng, y = it.coordinates.lat),
+                                radius = 16.dp,
+                                color = Color.White,
+                            ),
+                            CircleFeature(
+                                position = SchemeCoordinates(x = it.coordinates.lng, y = it.coordinates.lat),
+                                radius = 16.dp,
+                                color = Color(56, 215, 41),
+                                style = Stroke(width = 2.dp.toPx())
+                            ),
+                            CircleFeature(
+                                position = SchemeCoordinates(x = it.coordinates.lng, y = it.coordinates.lat),
+                                radius = 11.dp,
+                                color = Color(56, 215, 41),
+                                style = Stroke(width = 2.dp.toPx())
+                            )
+                        )
+                    } else {
+                        listOf(
+                            CircleFeature(
+                                position = SchemeCoordinates(x = it.coordinates.lng, y = it.coordinates.lat),
+                                radius = 3.dp,
+                                color = Color(56, 215, 41)
+                            )
+                        )
+                    }
 
+                }
+            lines + buildings
+
+        }
     }
 
     val focusUnderAfrica = SchemeCoordinates(

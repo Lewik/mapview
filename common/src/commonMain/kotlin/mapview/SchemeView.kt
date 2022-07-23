@@ -157,26 +157,28 @@ fun SchemeView(
                     when (feature) {
                         is CircleFeature -> drawCircle(
                             color = feature.color,
-                            radius = feature.radius,
-                            center = feature.position.toOffset()
+                            radius = feature.radius.toPx(),
+                            center = feature.position.toOffset(),
+                            style = feature.style,
                         )
                         is LineFeature -> drawLine(
                             color = feature.color,
                             start = feature.positionStart.toOffset(),
-                            end = feature.positionEnd.toOffset()
+                            end = feature.positionEnd.toOffset(),
+                            strokeWidth = feature.width.toPx()
                         )
                         is BitmapImageFeature -> drawImage(
                             image = feature.image,
-                            topLeft = feature.position.toOffset()
+                            topLeft = feature.position.toOffset(),
                         )
                         is VectorImageFeature -> {
                             val offset = feature.position.toOffset()
                             translate(
-                                left = offset.x - feature.size.width / 2,
-                                top = offset.y - feature.size.height / 2
+                                left = offset.x,
+                                top = offset.y
                             ) {
                                 with(feature.painter) {
-                                    draw(feature.size)
+                                    draw(size = feature.size.toSize())
                                 }
                             }
                         }
@@ -190,17 +192,6 @@ fun SchemeView(
                                 paint = Paint().apply { color = feature.color }
                             )
                         }
-
-//                is TextFeature -> drawIntoCanvas { canvas ->
-//                    val offset = feature.position.toOffset()
-//                    canvas.nativeCanvas.drawString(
-//                        feature.text,
-//                        offset.x + 5,
-//                        offset.y - 5,
-//                        Font().apply { size = 16f },
-//                        feature.color.toPaint()
-//                    )
-//                }
                     }.exhaustive()
 
                 }
