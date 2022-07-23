@@ -9,7 +9,7 @@ class LruCache<K, V>(
     private val cache = linkedMapOf<K, V>()
 
     @Synchronized
-    fun put(key: K, value: V){
+    fun put(key: K, value: V) {
         if (cache.size >= capacity) {
             cache.remove(cache.iterator().next().key)
         }

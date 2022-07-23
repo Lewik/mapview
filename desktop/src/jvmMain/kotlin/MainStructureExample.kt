@@ -108,9 +108,9 @@ fun main() = application {
         )
     }
 
-    var viewPoint = remember {
+    var viewData = remember {
         mutableStateOf(
-            ViewPoint(
+            ViewData(
                 focus = focus,
                 scale = scale,
                 size = Size(512f, 512f)
@@ -153,29 +153,22 @@ fun main() = application {
             position = WindowPosition(Alignment.TopStart),
         ),
     ) {
-
-//        SchemeViewWithGestures(
-//            mapTileProvider = mapTileProvider,
-//            features = features,
-//            onViewPointChange = { viewPoint.value = it },
-//            viewPoint = viewPoint,
-//            modifier = Modifier
-//        )
-        Box {
-            Text("${viewPoint.value}")
-        }
         SchemeView(
             mapTileProvider = mapTileProvider,
             features = features.value,
-            onViewPointChange = { TODO() },
-            onResize = { viewPoint.value = viewPoint.value.copy(size = it) },
-            viewPoint = viewPoint.value,
+            onViewDataChange = { TODO() },
+            onResize = { viewData.value = viewData.value.copy(size = it) },
+            viewData = viewData.value,
             modifier = Modifier.canvasGestures(
-                viewPoint = viewPoint,
-                onViewPointChange = { viewPoint.value = it },
+                viewData = viewData,
+                onViewDataChange = { viewData.value = it },
                 onClick = { println("CLICK as $it") }
             )
         )
+
+        Box {
+            Text("${viewData.value}")
+        }
 
 //        Outer()
 //        OuterWithProxy()

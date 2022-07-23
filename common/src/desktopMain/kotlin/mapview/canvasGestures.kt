@@ -8,24 +8,24 @@ import androidx.compose.ui.input.pointer.*
 
 @OptIn(ExperimentalComposeUiApi::class)
 actual fun Modifier.canvasGestures(
-    viewPoint: State<ViewPoint>,
-    onViewPointChange: (viewPoint: ViewPoint) -> Unit,
+    viewData: State<ViewData>,
+    onViewDataChange: (viewData: ViewData) -> Unit,
     onClick: (point: SchemeCoordinates) -> Unit,
 ): Modifier {
     return Modifier
         .onPointerEvent(PointerEventType.Scroll) {
             val change = it.changes.first()
             val scrollY = change.scrollDelta.y
-            onViewPointChange(
-                viewPoint.value
+            onViewDataChange(
+                viewData.value
                     .addScale(-scrollY)
             )
         }
         .onPointerEvent(PointerEventType.Move) {
             if (it.buttons.isPrimaryPressed) {
                 val dragAmount = it.changes.first().positionChange()
-                onViewPointChange(
-                    viewPoint.value.move(dragAmount)
+                onViewDataChange(
+                    viewData.value.move(dragAmount)
                 )
             }
         }
@@ -33,7 +33,7 @@ actual fun Modifier.canvasGestures(
             detectTapGestures(
                 onTap = {
                     onClick(
-                        with(viewPoint.value) {
+                        with(viewData.value) {
                             it.toSchemeCoordinates()
                         }
                     )

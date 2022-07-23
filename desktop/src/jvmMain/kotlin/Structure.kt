@@ -1,5 +1,7 @@
 import kotlinx.serialization.Serializable
 
+//for internal use
+
 @Serializable
 data class MercatorPoint1(
     /**

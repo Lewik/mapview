@@ -6,7 +6,7 @@ import androidx.compose.ui.geometry.Size
 /**
  * Observable position on the map. Includes observation coordinate and [scale] factor
  */
-data class ViewPoint(
+data class ViewData(
     val size: Size,
     val focus: SchemeCoordinates,
     val scale: Double,
@@ -24,7 +24,7 @@ data class ViewPoint(
 }
 
 //in display coordinates
-fun ViewPoint.move(dragAmount: Offset) = ViewPoint(
+fun ViewData.move(dragAmount: Offset) = ViewData(
     focus = SchemeCoordinates(
         x = focus.x - dragAmount.x / scale,
         y = focus.y + dragAmount.y / scale
@@ -33,17 +33,17 @@ fun ViewPoint.move(dragAmount: Offset) = ViewPoint(
     size = size
 )
 
-fun ViewPoint.addScale(
+fun ViewData.addScale(
     scaleDelta: Number,
 //    invariant: SchemeCoordinates = focus,
-): ViewPoint {
+): ViewData {
     println("scaleDelta $scaleDelta")
-    val newScale = (scale * (1 + scaleDelta.toFloat() /10)).coerceIn(0.0, Double.MAX_VALUE)
+    val newScale = (scale * (1 + scaleDelta.toFloat() / 10)).coerceIn(0.0, Double.MAX_VALUE)
     return copy(scale = newScale)
 //    return if (invariant == focus) {
 //        copy(scale = newScale)
 //    } else {
-//        ViewPoint(
+//        ViewData(
 //            focus = focus,
 //            scale = newScale
 //        )

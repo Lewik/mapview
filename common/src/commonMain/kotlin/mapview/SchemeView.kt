@@ -26,17 +26,17 @@ private fun IntRange.intersect(other: IntRange) = max(first, other.first)..min(l
 @Composable
 fun SchemeView(
     mapTileProvider: MapTileProvider? = null,
-//    computeViewPoint: (canvasSize: DpSize) -> MapViewPoint,
+//    computeViewData: (canvasSize: DpSize) -> MapViewData,
 //    features: Map<FeatureId, MapFeature>,
-//    onClick: MapViewPoint.() -> Unit,
+//    onClick: MapViewData.() -> Unit,
 //    config: MapViewConfig,
     features: List<Feature>,
-    viewPoint: ViewPoint,
-    onViewPointChange: (viewPoint: ViewPoint) -> Unit,
+    viewData: ViewData,
+    onViewDataChange: (viewData: ViewData) -> Unit,
     onResize: (size: Size) -> Unit,
     modifier: Modifier,
 ) {
-    val scale by derivedStateOf { viewPoint.scale }
+    val scale by derivedStateOf { viewData.scale }
 
     val zoom by derivedStateOf {
         if (mapTileProvider != null) {
@@ -60,13 +60,12 @@ fun SchemeView(
         .fillMaxSize()
 
     if (mapTileProvider !== null) (
-            LaunchedEffect(viewPoint) {
-                with(viewPoint) {
+            LaunchedEffect(viewData) {
+                with(viewData) {
                     val topLeft = Offset.Zero.toSchemeCoordinates()
 
 //                    val range = -MapTileProvider.EQUATOR / 2..MapTileProvider.EQUATOR / 2
 //                    if (topLeft.x !in range || topLeft.y !in range) println("WARNING: topLeft out of bounds")
-
 
                     val startTileId = calculate(topLeft, zoom)
                     val tileRange = 0..tileNum
@@ -81,19 +80,22 @@ fun SchemeView(
                                 }
                         }
 
-                    val tileIds = unfilteredTileIds
-//                    val (tileIds, outOfRangeTiles) = unfilteredTileIds.partition { it.x in tileRange && it.y in tileRange }
-//                    if (outOfRangeTiles.isNotEmpty()) {
-//                        println("outOfRangeTiles $outOfRangeTiles")
-//                    }
+                    val (tileIds, outOfRangeTiles) = unfilteredTileIds.partition { it.x in tileRange && it.y in tileRange }
+                    if (outOfRangeTiles.isNotEmpty()) {
+                        println("outOfRangeTiles $outOfRangeTiles")
+                    }
 
-//                println("top left $center tileId $tileId")
                     println("tileIds (${tileIds.size}) (0..${size.width / tileSize} 0..${size.height / tileSize}) $tileIds")
                     mapTiles.clear()
                     tileIds.forEach { tileId ->
                         launch {
-                            mapTileProvider.loadTileAsync(tileId)?.also {
-                                mapTiles += it
+                            try {
+                                mapTileProvider.loadTileAsync(tileId)?.also {
+                                    mapTiles += it
+                                }
+                            } catch (e: Exception) {
+                                println("WARINIG")
+                                println(e)
                             }
                         }
                     }
@@ -102,7 +104,7 @@ fun SchemeView(
             )
 
     Canvas(canvasModifier) {
-        if (viewPoint.size != size) {
+        if (viewData.size != size) {
             onResize(size)
         }
         clipRect {
@@ -112,7 +114,7 @@ fun SchemeView(
                     height = tileSize
                 )
                 mapTiles.forEach { (id, image) ->
-                    val offset = with(viewPoint) {
+                    val offset = with(viewData) {
                         calculateBack(id)
                             .also {
 //                                println("coord: $it, id: $id, zoom $zoom ${id.zoom}")
@@ -136,7 +138,7 @@ fun SchemeView(
                     )
                 }
             }
-            with(viewPoint) {
+            with(viewData) {
                 drawLine(
                     color = Color.DarkGray,
                     start = Offset(size.width / 2, 0f),
@@ -184,10 +186,6 @@ fun SchemeView(
 //                        Font().apply { size = 16f },
 //                        feature.color.toPaint()
 //                    )
-//                }
-//                is CustomFeature -> drawIntoCanvas { canvas ->
-//                    val offset = feature.position.toOffset()
-//                    feature.drawFeature(this, offset)
 //                }
                     }.exhaustive()
 
