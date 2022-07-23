@@ -1,6 +1,8 @@
 package mapview
 
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import kotlin.math.floor
 import kotlin.math.pow
 
@@ -18,19 +20,14 @@ data class MapTile(
 interface MapTileProvider {
     suspend fun loadTileAsync(tileId: TileId): MapTile?
 
-    val tileSize: Int get() = DEFAULT_TILE_SIZE
+    val minScale: Int
+    val maxScale: Int
 
-    fun toIndex(d: Double): Int = floor(d / tileSize).toInt()
-
-    fun toCoordinate(i: Int): Double = (i * tileSize).toDouble()
+    val tileSize: Dp get() = DEFAULT_TILE_SIZE
 
     companion object {
-        const val DEFAULT_TILE_SIZE = 256
+        val DEFAULT_TILE_SIZE = 256.dp
 
-        //        const val EQUATOR = 20026376.39 * 2
-//        const val X = 20026376.39 * 2
-//        const val Y = 20048966.10 * 2
-//        const val SHIFT = 20037508.342789244
         const val EQUATOR = 40075016.68557849
     }
 }

@@ -1,3 +1,4 @@
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,10 +24,18 @@ import kotlinx.serialization.json.Json
 import mapview.*
 import kotlin.math.pow
 
+
+object ScadaColor {
+    val green = Color(56, 215, 41)
+    val orange = Color(216, 140, 0)
+}
+
 fun main() = application {
     val density = LocalDensity.current
 
-    val features = remember {
+    val selectedFeatureId = remember { mutableStateOf(FeatureId("")) }
+
+    val features = derivedStateOf {
         with(density) {
             val content = object {}::class.java.getResource("/structure.json").readText()
             val structure = Json { ignoreUnknownKeys = true }.decodeFromString<Structure>(content)
@@ -40,12 +49,17 @@ fun main() = application {
 
 
             val lines = structure.linesById.values
-                .map {
+                .map { line ->
+                    val featureId = FeatureId(line.id)
+                    val selected = selectedFeatureId.value == featureId
+                    val color = if (selected) ScadaColor.orange else ScadaColor.green
+                    val width = if (selected) 4.dp else 2.dp
                     LineFeature(
-                        positionStart = connectionCoordinates.getValue(it.connections[0]),
-                        positionEnd = connectionCoordinates.getValue(it.connections[1]),
-                        color = Color(56, 215, 41),
-                        width = 2.dp,
+                        featureId = featureId,
+                        positionStart = connectionCoordinates.getValue(line.connections[0]),
+                        positionEnd = connectionCoordinates.getValue(line.connections[1]),
+                        color = color,
+                        width = width,
                     )
                 }
 
@@ -53,33 +67,40 @@ fun main() = application {
             val buildings = structure.buildingsById.values
                 .filter { it.type != Building.Type.PILLAR }
                 .sortedBy { it.type == Building.Type.SUB_STATION }
-                .flatMap {
-                    if (it.type == Building.Type.SUB_STATION) {
+                .flatMap { building ->
+                    val featureId = FeatureId(building.id)
+                    val selected = selectedFeatureId.value == featureId
+                    val color = if (selected) ScadaColor.orange else ScadaColor.green
+                    if (building.type == Building.Type.SUB_STATION) {
                         listOf(
                             CircleFeature(
-                                position = SchemeCoordinates(x = it.coordinates.lng, y = it.coordinates.lat),
+                                featureId = FeatureId(building.id),
+                                position = SchemeCoordinates(x = building.coordinates.lng, y = building.coordinates.lat),
                                 radius = 16.dp,
                                 color = Color.White,
                             ),
                             CircleFeature(
-                                position = SchemeCoordinates(x = it.coordinates.lng, y = it.coordinates.lat),
+                                featureId = FeatureId(building.id + "2"),
+                                position = SchemeCoordinates(x = building.coordinates.lng, y = building.coordinates.lat),
                                 radius = 16.dp,
-                                color = Color(56, 215, 41),
+                                color = color,
                                 style = Stroke(width = 2.dp.toPx())
                             ),
                             CircleFeature(
-                                position = SchemeCoordinates(x = it.coordinates.lng, y = it.coordinates.lat),
+                                featureId = FeatureId(building.id + "3"),
+                                position = SchemeCoordinates(x = building.coordinates.lng, y = building.coordinates.lat),
                                 radius = 11.dp,
-                                color = Color(56, 215, 41),
+                                color = color,
                                 style = Stroke(width = 2.dp.toPx())
                             )
                         )
                     } else {
                         listOf(
                             CircleFeature(
-                                position = SchemeCoordinates(x = it.coordinates.lng, y = it.coordinates.lat),
+                                featureId = FeatureId(building.id),
+                                position = SchemeCoordinates(x = building.coordinates.lng, y = building.coordinates.lat),
                                 radius = 3.dp,
-                                color = Color(56, 215, 41)
+                                color = color
                             )
                         )
                     }
@@ -88,6 +109,7 @@ fun main() = application {
             lines + buildings
 
         }
+
     }
 
     val focusUnderAfrica = SchemeCoordinates(
@@ -105,14 +127,16 @@ fun main() = application {
 
 
     var viewData = remember {
-        mutableStateOf(
+        val state = mutableStateOf(
             ViewData(
                 focus = focus,
                 scale = scale,
                 size = Size(800f, 600f),
-                showDebug = true,
-            ).zoomToFeatures(features)
+                showDebug = false,
+            ).zoomToFeatures(features.value)
         )
+        state.value = state.value.zoomToFeatures(features.value)
+        state
     }
 
 
@@ -138,7 +162,9 @@ fun main() = application {
                         println("WARNING KTOR can't get $zoom/$x/$y ")
                         null
                     }
-                }
+                },
+                minScale = 1,
+                maxScale = 19,
             )
         )
     }
@@ -152,17 +178,31 @@ fun main() = application {
     ) {
         SchemeView(
             mapTileProvider = mapTileProvider,
-            features = features,
+            features = features.value,
             onViewDataChange = { TODO() },
             onResize = { viewData.value = viewData.value.copy(size = it) },
             viewData = viewData.value,
             modifier = Modifier.canvasGestures(
                 viewData = viewData,
                 onViewDataChange = { viewData.value = it },
-                onClick = { println("CLICK as $it") }
+                onClick = { target ->
+                    val selected = features
+                        .value
+                        .filter { it is PointFeatureType || it is LineFeatureType }
+                        .sortedBy {
+                            when (it) {
+                                is PointFeatureType -> getSquaredDistance(target, it)
+                                is LineFeatureType -> getSquaredDistance(target, it)
+                                else -> throw IllegalStateException("Impossible")
+                            }
+                        }
+                        .firstOrNull()
+                    if (selected != null) {
+                        selectedFeatureId.value = selected.featureId
+                        println("SELECTED ${selected.featureId}")
+                    }
+                }
             )
         )
     }
 }
-
-

@@ -37,11 +37,13 @@ fun main() = application {
         mutableStateOf(
             listOf(
                 CircleFeature(
+                    featureId = FeatureId("1"),
                     position = focus,
                     radius = 3.dp,
                     color = Color.Red
                 ),
                 TextFeature(
+                    featureId = FeatureId("2"),
                     position = focus,
                     text = "Test Тест",
                     color = Color.Red
@@ -83,7 +85,9 @@ fun main() = application {
                         println("WARNING KTOR can't get $zoom/$x/$y ")
                         null
                     }
-                }
+                },
+                minScale = 1,
+                maxScale = 19,
             )
         )
     }

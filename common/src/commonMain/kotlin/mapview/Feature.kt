@@ -9,39 +9,56 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import kotlin.jvm.JvmInline
 
+@JvmInline
+value class FeatureId(val value: String)
 sealed class Feature {
     abstract fun getExtent(): Extent
+    abstract val featureId: FeatureId
+}
+
+interface PointFeatureType {
+    val position: SchemeCoordinates
+}
+
+interface LineFeatureType {
+    val positionStart: SchemeCoordinates
+    val positionEnd: SchemeCoordinates
 }
 
 class CircleFeature(
-    val position: SchemeCoordinates,
+    override val featureId: FeatureId,
+    override val position: SchemeCoordinates,
     val radius: Dp,
     val color: Color,
     val style: DrawStyle = Fill,
-) : Feature() {
+) : Feature(), PointFeatureType {
 
     override fun getExtent() = Extent(position, position)
 }
 
 class LineFeature(
-    val positionStart: SchemeCoordinates,
-    val positionEnd: SchemeCoordinates,
+    override val featureId: FeatureId,
+    override val positionStart: SchemeCoordinates,
+    override val positionEnd: SchemeCoordinates,
     val color: Color,
     val width: Dp = Stroke.HairlineWidth.dp,
-) : Feature() {
+) : Feature(), LineFeatureType {
     override fun getExtent() = listOf(positionStart, positionEnd).toExtent()
 }
 
 class TextFeature(
-    val position: SchemeCoordinates,
+    override val featureId: FeatureId,
+    override val position: SchemeCoordinates,
     val text: String,
     val color: Color,
-) : Feature() {
+) : Feature(), PointFeatureType {
     override fun getExtent() = Extent(position, position)
 }
 
 class BitmapImageFeature(
+    override val featureId: FeatureId,
     val position: SchemeCoordinates,
     val image: ImageBitmap,
     val size: DpSize,
@@ -51,6 +68,7 @@ class BitmapImageFeature(
 
 
 class VectorImageFeature(
+    override val featureId: FeatureId,
     val position: SchemeCoordinates,
     val painter: Painter,
     val size: DpSize,

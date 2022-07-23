@@ -44,7 +44,6 @@ data class ViewData(
         scaleDelta: Number,
 //    invariant: SchemeCoordinates = focus,
     ): ViewData {
-        println("scaleDelta $scaleDelta")
         val newScale = (scale * (1 + scaleDelta.toFloat() / 10)).coerce()
         return copy(scale = newScale)
 //    return if (invariant == focus) {
