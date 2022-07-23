@@ -23,9 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
 import kotlinx.coroutines.launch
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.pow
+import kotlin.math.*
 
 
 private fun IntRange.intersect(other: IntRange) = max(first, other.first)..min(last, other.last)
@@ -76,10 +74,12 @@ fun SchemeView(
 //                    if (topLeft.x !in range || topLeft.y !in range) println("WARNING: topLeft out of bounds")
 
                     val startTileId = topLeft.toTileId(zoom)
-                    val tileRange = 0..tileNum
-                    val unfilteredTileIds = (0..(size.width / tileSize).toInt())
+                    val tileXRange = 0..ceil(size.width / tileSize).toInt()
+                    val tileYRange = 0..ceil(size.height / tileSize).toInt()
+
+                    val tileIds = tileXRange
                         .flatMap { additionalX ->
-                            (0..(size.height / tileSize).toInt())
+                            tileYRange
                                 .map { additionalY ->
                                     startTileId.copy(
                                         x = startTileId.x + additionalX,
@@ -88,24 +88,34 @@ fun SchemeView(
                                 }
                         }
 
-                    val (tileIds, outOfRangeTiles) = unfilteredTileIds.partition { it.x in tileRange && it.y in tileRange }
-                    if (outOfRangeTiles.isNotEmpty()) {
-                        println("outOfRangeTiles $outOfRangeTiles")
+                    run {
+                        val tileRange = 0..tileNum
+                        val outOfRangeTiles = tileIds.filterNot { it.x in tileRange && it.y in tileRange }
+                        if (outOfRangeTiles.isNotEmpty()) {
+                            throw Exception("outOfRangeTiles $outOfRangeTiles")
+                        }
                     }
 
                     println("tileIds (${tileIds.size}) (0..${size.width / tileSize} 0..${size.height / tileSize}) $tileIds")
                     mapTiles.clear()
-                    tileIds.forEach { tileId ->
-                        launch {
-                            try {
-                                mapTileProvider.loadTileAsync(tileId)?.also {
-                                    mapTiles += it
+
+                    val centerTileX = (startTileId.x + tileXRange.first + startTileId.x + tileXRange.last) / 2
+                    val centerTileY = (startTileId.y + tileYRange.first + startTileId.y + tileYRange.last) / 2
+
+                    launch {
+                        tileIds
+                            .onEach { println("hypot $centerTileX $centerTileY ${hypot((centerTileX - it.x).toDouble(), (centerTileY - it.y).toDouble())})") }
+                            .sortedBy { hypot((centerTileX - it.x).toDouble(), (centerTileY - it.y).toDouble()) }
+                            .forEach { tileId ->
+                                try {
+                                    mapTileProvider.loadTileAsync(tileId)?.also {
+                                        mapTiles += it
+                                    }
+                                } catch (e: Exception) {
+                                    println("WARINIG")
+                                    println(e)
                                 }
-                            } catch (e: Exception) {
-                                println("WARINIG")
-                                println(e)
                             }
-                        }
                     }
                 }
             }
@@ -126,20 +136,44 @@ fun SchemeView(
                         val offset = tileId
                             .toSchemaCoordinates()
                             .toOffset()
+                        val intOffset = offset
                             .toIntOffset()
 //                        println("tile $tileId tileNum $tileNum int offset $offset, tileSizeXY $tileSizeXY")
                         drawImage(
                             image = image,
-                            dstOffset = offset,
+                            dstOffset = intOffset,
                             dstSize = tileSizeXY
                         )
                         if (viewData.showDebug) {
                             drawRect(
                                 color = Color.Red,
-                                topLeft = offset.toOffset(),
+                                topLeft = intOffset.toOffset(),
                                 size = tileSizeXY.toSize(),
                                 style = Stroke(width = 1f)
                             )
+                            drawIntoCanvas {
+                                it.nativeCanvas.drawText1(
+                                    string = "x: ${tileId.x}",
+                                    x = offset.x + 20.dp.toPx(),
+                                    y = offset.y + 20.dp.toPx(),
+                                    fontSize = 10.dp.toPx(),
+                                    paint = Paint().apply { color = Color.Red }
+                                )
+                                it.nativeCanvas.drawText1(
+                                    string = "y: ${tileId.y}",
+                                    x = offset.x + 20.dp.toPx(),
+                                    y = offset.y + 40.dp.toPx(),
+                                    fontSize = 10.dp.toPx(),
+                                    paint = Paint().apply { color = Color.Red }
+                                )
+                                it.nativeCanvas.drawText1(
+                                    string = "zoom: ${tileId.zoom}",
+                                    x = offset.x + 20.dp.toPx(),
+                                    y = offset.y + 60.dp.toPx(),
+                                    fontSize = 10.dp.toPx(),
+                                    paint = Paint().apply { color = Color.Red }
+                                )
+                            }
                         }
                     }
                 }
