@@ -39,6 +39,11 @@ fun main() = application {
                     radius = 3f,
                     color = Color.Red
                 ),
+                TextFeature(
+                    position = focus,
+                    text = "Test Тест",
+                    color = Color.Red
+                ),
             )
         )
     }

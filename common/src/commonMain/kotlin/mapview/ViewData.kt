@@ -22,25 +22,25 @@ data class ViewData(
         ((x - focus.x) * scale).toFloat() + size.width / 2,
         -((y - focus.y) * scale).toFloat() + size.height / 2,
     )
-}
 
-//in display coordinates
-fun ViewData.move(dragAmount: Offset) = copy(
-    focus = SchemeCoordinates(
-        x = focus.x - dragAmount.x / scale,
-        y = focus.y + dragAmount.y / scale
-    ),
-    scale = scale,
-    size = size
-)
 
-fun ViewData.addScale(
-    scaleDelta: Number,
+    //in display coordinates
+    fun move(dragAmount: Offset) = copy(
+        focus = SchemeCoordinates(
+            x = focus.x - dragAmount.x / scale,
+            y = focus.y + dragAmount.y / scale
+        ),
+        scale = scale,
+        size = size
+    )
+
+    fun addScale(
+        scaleDelta: Number,
 //    invariant: SchemeCoordinates = focus,
-): ViewData {
-    println("scaleDelta $scaleDelta")
-    val newScale = (scale * (1 + scaleDelta.toFloat() / 10)).coerceIn(0.0, Double.MAX_VALUE)
-    return copy(scale = newScale)
+    ): ViewData {
+        println("scaleDelta $scaleDelta")
+        val newScale = (scale * (1 + scaleDelta.toFloat() / 10)).coerceIn(0.0, Double.MAX_VALUE)
+        return copy(scale = newScale)
 //    return if (invariant == focus) {
 //        copy(scale = newScale)
 //    } else {
@@ -49,5 +49,7 @@ fun ViewData.addScale(
 //            scale = newScale
 //        )
 //    }
+    }
+
 }
 

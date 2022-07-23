@@ -12,10 +12,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.unit.toSize
 import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
@@ -69,7 +75,7 @@ fun SchemeView(
 //                    val range = -MapTileProvider.EQUATOR / 2..MapTileProvider.EQUATOR / 2
 //                    if (topLeft.x !in range || topLeft.y !in range) println("WARNING: topLeft out of bounds")
 
-                    val startTileId = calculate(topLeft, zoom)
+                    val startTileId = topLeft.toTileId(zoom)
                     val tileRange = 0..tileNum
                     val unfilteredTileIds = (0..(size.width / tileSize).toInt())
                         .flatMap { additionalX ->
@@ -110,37 +116,33 @@ fun SchemeView(
             onResize(size)
         }
         clipRect {
-            if (mapTileProvider !== null) {
-                val tileSizeXY = IntSize(
-                    width = tileSize,
-                    height = tileSize
-                )
-                mapTiles.forEach { (id, image) ->
-                    val offset = with(viewData) {
-                        calculateBack(id)
-                            .also {
-//                                println("coord: $it, id: $id, zoom $zoom ${id.zoom}")
-                            }
-                            .toOffset()
-
-                    }.let {
-                        IntOffset(it.x.toInt(), it.y.toInt())
-                    }
-                    println("tile $id tileNum $tileNum int offset $offset, tileSizeXY $tileSizeXY")
-                    drawImage(
-                        image = image,
-                        dstOffset = offset,
-                        dstSize = tileSizeXY
-                    )
-                    drawRect(
-                        color = Color.Red,
-                        topLeft = offset.toOffset(),
-                        size = tileSizeXY.toSize(),
-                        style = Stroke(width = 1f)
-                    )
-                }
-            }
             with(viewData) {
+                if (mapTileProvider !== null) {
+                    val tileSizeXY = IntSize(
+                        width = tileSize,
+                        height = tileSize
+                    )
+                    mapTiles.forEach { (tileId, image) ->
+                        val offset = tileId
+                            .toSchemaCoordinates()
+                            .toOffset()
+                            .toIntOffset()
+//                        println("tile $tileId tileNum $tileNum int offset $offset, tileSizeXY $tileSizeXY")
+                        drawImage(
+                            image = image,
+                            dstOffset = offset,
+                            dstSize = tileSizeXY
+                        )
+                        if (viewData.showDebug) {
+                            drawRect(
+                                color = Color.Red,
+                                topLeft = offset.toOffset(),
+                                size = tileSizeXY.toSize(),
+                                style = Stroke(width = 1f)
+                            )
+                        }
+                    }
+                }
                 drawLine(
                     color = Color.DarkGray,
                     start = Offset(size.width / 2, 0f),
@@ -178,7 +180,17 @@ fun SchemeView(
                                 }
                             }
                         }
-                        is TextFeature -> TODO()
+                        is TextFeature -> drawIntoCanvas { canvas ->
+                            val offset = feature.position.toOffset()
+                            canvas.nativeCanvas.drawText1(
+                                string = feature.text,
+                                x = offset.x + 5,
+                                y = offset.y - 5,
+                                fontSize = 16f,
+                                paint = Paint().apply { color = feature.color }
+                            )
+                        }
+
 //                is TextFeature -> drawIntoCanvas { canvas ->
 //                    val offset = feature.position.toOffset()
 //                    canvas.nativeCanvas.drawString(
@@ -214,18 +226,3 @@ fun SchemeView(
     }
 }
 
-fun calculate(center: SchemeCoordinates, zoom: Int): TileId {
-    val equator = MapTileProvider.EQUATOR
-    val tileNum = 2.0.pow(zoom)
-    val tileX = ((center.x + (equator / 2.0)) * tileNum / equator).toInt()
-    val tileY = (-(center.y - (equator / 2.0)) * tileNum / equator).toInt()
-    return TileId(zoom, tileX, tileY)
-}
-
-fun calculateBack(tileId: TileId): SchemeCoordinates {
-    val equator = MapTileProvider.EQUATOR
-    val tileNum = 2.0.pow(tileId.zoom)
-    val x = tileId.x * equator / tileNum - equator / 2.0
-    val y = -(tileId.y * equator / tileNum) + equator / 2.0
-    return SchemeCoordinates(x, y)
-}

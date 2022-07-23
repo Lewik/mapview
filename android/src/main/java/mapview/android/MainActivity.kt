@@ -3,8 +3,6 @@ package mapview.android
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.Box
-import androidx.compose.material.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +41,11 @@ class MainActivity : AppCompatActivity() {
                         CircleFeature(
                             position = focus,
                             radius = 3f,
+                            color = Color.Red
+                        ),
+                        TextFeature(
+                            position = focus,
+                            text = "Test Тест",
                             color = Color.Red
                         ),
                     )
@@ -101,11 +104,6 @@ class MainActivity : AppCompatActivity() {
                     onClick = { println("CLICK as $it") }
                 )
             )
-
-            Box {
-                Text("${viewData.value}")
-            }
-
         }
     }
 }
