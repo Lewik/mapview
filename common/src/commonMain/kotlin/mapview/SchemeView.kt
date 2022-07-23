@@ -215,12 +215,12 @@ fun SchemeView(
                     .background(color = Color.White.copy(alpha = .5f))
                     .padding(10.dp)
             ) {
-                Text("Focus: x:${viewData.focus.x}, y:${viewData.focus.x}")
-                Text("Scale: ${viewData.scale}")
+                Text("Focus: x: ${viewData.focus.x}, y: ${viewData.focus.x}")
+                Text("Scale: ${viewData.scale}, min: ${viewData.getMinScaleCoerce()}, max: ${viewData.maxScale}")
                 if (mapTileProvider != null) {
                     Text("Zoom: $zoom")
                 }
-                Text("Size: width:${viewData.size.width},height: ${viewData.size.height}")
+                Text("Size: width:${viewData.size.width}, height: ${viewData.size.height}")
             }
         }
     }

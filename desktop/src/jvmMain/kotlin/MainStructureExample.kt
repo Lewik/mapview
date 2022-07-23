@@ -74,9 +74,9 @@ fun main() = application {
             ViewData(
                 focus = focus,
                 scale = scale,
-                size = Size(512f, 512f),
+                size = Size(800f, 600f),
                 showDebug = true,
-            )
+            ).zoomToFeatures(features)
         )
     }
 

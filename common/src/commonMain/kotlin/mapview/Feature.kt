@@ -6,33 +6,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.IntSize
 
-data class SchemeCoordinates(
-    val x: Double,
-    val y: Double,
-) {
-    operator fun plus(schemeCoordinates: SchemeCoordinates) = copy(
-        x = x + schemeCoordinates.x,
-        y = y + schemeCoordinates.y
-    )
-
-    operator fun minus(schemeCoordinates: SchemeCoordinates) = copy(
-        x = x - schemeCoordinates.x,
-        y = y - schemeCoordinates.y
-    )
-
-    operator fun times(a: Number) = copy(
-        x = x * a.toDouble(),
-        y = y * a.toDouble()
-    )
-
-    operator fun div(a: Number) = copy(
-        x = x / a.toDouble(),
-        y = y / a.toDouble()
-    )
-}
-
 sealed class Feature {
-    abstract fun getBoundingBox(): BoundingBox
+    abstract fun getExtent(): Extent
 }
 
 class CircleFeature(
@@ -40,7 +15,7 @@ class CircleFeature(
     val radius: Float,
     val color: Color,
 ) : Feature() {
-    override fun getBoundingBox() = BoundingBox(position, position)
+    override fun getExtent() = Extent(position, position)
 }
 
 class LineFeature(
@@ -48,7 +23,7 @@ class LineFeature(
     val positionEnd: SchemeCoordinates,
     val color: Color,
 ) : Feature() {
-    override fun getBoundingBox() = listOf(positionStart, positionEnd).toBoundingBox()
+    override fun getExtent() = listOf(positionStart, positionEnd).toExtent()
 }
 
 class TextFeature(
@@ -56,7 +31,7 @@ class TextFeature(
     val text: String,
     val color: Color,
 ) : Feature() {
-    override fun getBoundingBox() = BoundingBox(position, position)
+    override fun getExtent() = Extent(position, position)
 }
 
 class BitmapImageFeature(
@@ -64,7 +39,7 @@ class BitmapImageFeature(
     val image: ImageBitmap,
     val size: IntSize,
 ) : Feature() {
-    override fun getBoundingBox() = BoundingBox(position, position)
+    override fun getExtent() = Extent(position, position)
 }
 
 
@@ -73,5 +48,5 @@ class VectorImageFeature(
     val painter: Painter,
     val size: Size,
 ) : Feature() {
-    override fun getBoundingBox() = BoundingBox(position, position)
+    override fun getExtent() = Extent(position, position)
 }
