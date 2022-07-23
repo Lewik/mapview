@@ -68,60 +68,60 @@ fun SchemeView(
         val canvasModifier = modifier
             .fillMaxSize()
 
-        if (mapTileProvider !== null) (
-                LaunchedEffect(viewData) {
-                    with(viewData) {
-                        val topLeft = Offset.Zero.toSchemeCoordinates()
+        if (mapTileProvider !== null) {
+            LaunchedEffect(viewData) {
+                with(viewData) {
+                    val topLeft = Offset.Zero.toSchemeCoordinates()
 
 //                    val range = -MapTileProvider.EQUATOR / 2..MapTileProvider.EQUATOR / 2
 //                    if (topLeft.x !in range || topLeft.y !in range) println("WARNING: topLeft out of bounds")
 
-                        val tileRange = 0..tileNum
-                        val startTileId = topLeft
-                            .toTileId(zoom)
-                            .coerceInTileRange(tileRange)
-                        val tileXRange = (0..ceil(size.width / tileSize).toInt())
-                            .intersect(tileRange)
-                        val tileYRange = (0..ceil(size.height / tileSize).toInt())
-                            .intersect(tileRange)
+                    val tileRange = 0..tileNum
+                    val startTileId = topLeft
+                        .toTileId(zoom)
+                        .coerceInTileRange(tileRange)
+                    val tileXRange = (0..ceil(size.width / tileSize).toInt())
+                        .intersect(tileRange)
+                    val tileYRange = (0..ceil(size.height / tileSize).toInt())
+                        .intersect(tileRange)
 
-                        val tileIds = tileXRange
-                            .flatMap { additionalX ->
-                                tileYRange
-                                    .map { additionalY ->
-                                        startTileId.copy(
-                                            x = startTileId.x + additionalX,
-                                            y = startTileId.y + additionalY,
-                                        )
-                                    }
-                            }
-
-
-                        println("tileIds (${tileIds.size}) (0..${size.width / tileSize} 0..${size.height / tileSize}) $tileIds")
-                        mapTiles.clear()
-
-                        val centerTileX = (startTileId.x + tileXRange.first + startTileId.x + tileXRange.last) / 2
-                        val centerTileY = (startTileId.y + tileYRange.first + startTileId.y + tileYRange.last) / 2
-
-                        launch {
-                            tileIds
-                                .sortedBy { hypot((centerTileX - it.x).toDouble(), (centerTileY - it.y).toDouble()) }
-                                .forEach { tileId ->
-                                    try {
-                                        mapTileProvider.loadTileAsync(tileId)?.also {
-                                            mapTiles += it
-                                        }
-                                    } catch (e: Exception) {
-                                        if (e !is CancellationException) {
-                                            println("WARINIG")
-                                            println(e)
-                                        }
-                                    }
+                    val tileIds = tileXRange
+                        .flatMap { additionalX ->
+                            tileYRange
+                                .map { additionalY ->
+                                    startTileId.copy(
+                                        x = startTileId.x + additionalX,
+                                        y = startTileId.y + additionalY,
+                                    )
                                 }
                         }
+
+
+                    println("tileIds (${tileIds.size}) (0..${size.width / tileSize} 0..${size.height / tileSize}) $tileIds")
+                    mapTiles.clear()
+
+                    val centerTileX = (startTileId.x + tileXRange.first + startTileId.x + tileXRange.last) / 2
+                    val centerTileY = (startTileId.y + tileYRange.first + startTileId.y + tileYRange.last) / 2
+
+                    launch {
+                        tileIds
+                            .sortedBy { hypot((centerTileX - it.x).toDouble(), (centerTileY - it.y).toDouble()) }
+                            .forEach { tileId ->
+                                try {
+                                    mapTileProvider.loadTileAsync(tileId)?.also {
+                                        mapTiles += it
+                                    }
+                                } catch (e: Exception) {
+                                    if (e !is CancellationException) {
+                                        println("WARINIG")
+                                        println(e)
+                                    }
+                                }
+                            }
                     }
                 }
-                )
+            }
+        }
 
         Canvas(canvasModifier) {
             if (viewData.size != size) {
