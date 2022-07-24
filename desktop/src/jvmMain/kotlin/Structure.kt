@@ -3,7 +3,7 @@ import kotlinx.serialization.Serializable
 //for internal use
 
 @Serializable
-data class MercatorPoint1(
+data class MercatorPoint(
     /**
      * Longitude, x
      * Avoid ambiguity! Mercator only!
@@ -103,7 +103,7 @@ data class Building(
     val id: String,
     var type: Type,
     var deviceList: MutableList<Device>,
-    val coordinates: MercatorPoint1,
+    val coordinates: MercatorPoint,
     var label: String,
     var dispatcherName: String,
     val owner: Owner,

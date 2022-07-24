@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
 import kotlinx.coroutines.launch
+import mapview.viewData.ViewData
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.*
 
@@ -199,7 +200,8 @@ fun SchemeView(
                                 color = feature.color,
                                 start = feature.positionStart.toOffset(),
                                 end = feature.positionEnd.toOffset(),
-                                strokeWidth = feature.width.toPx()
+                                strokeWidth = feature.width.toPx(),
+                                cap = feature.cap
                             )
                             is BitmapImageFeature -> drawImage(
                                 image = feature.image,

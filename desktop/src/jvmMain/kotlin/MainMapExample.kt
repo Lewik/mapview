@@ -14,6 +14,10 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import mapview.*
+import mapview.viewData.ViewData
+import mapview.viewData.addScale
+import mapview.viewData.move
+import mapview.viewData.resize
 
 fun main() = application {
 

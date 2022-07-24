@@ -18,6 +18,10 @@ import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mapview.*
+import mapview.viewData.ViewData
+import mapview.viewData.move
+import mapview.viewData.multiplyScale
+import mapview.viewData.resize
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
