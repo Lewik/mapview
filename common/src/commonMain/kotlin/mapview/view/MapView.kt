@@ -10,10 +10,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import mapview.Feature
-import mapview.tiles.MapTile
-import mapview.tiles.MapTileProvider
-import mapview.tiles.coerceInTileRange
-import mapview.tiles.toTileId
+import mapview.LruCache
+import mapview.tiles.*
 import mapview.viewData.ViewData
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.*
@@ -28,6 +26,7 @@ fun MapView(
     minZoom: Int = 1,
     maxZoom: Int = 18,
     tileSize: Dp = 256.dp,
+    inmemoryTileCacheAmount: Int = 500,
     features: List<Feature>,
     viewDataState: State<ViewData>,
     onDragStart: (offset: Offset) -> Unit = {},
@@ -39,6 +38,11 @@ fun MapView(
     onResize: (size: Size) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val tileCache by remember {
+        mutableStateOf(
+            LruCache<TileId, MapTile>(inmemoryTileCacheAmount)
+        )
+    }
     with(LocalDensity.current) {
         val viewData by derivedStateOf { viewDataState.value } //TODO is it correct?
         with(viewData) {
@@ -64,7 +68,6 @@ fun MapView(
 
             }
             LaunchedEffect(viewData) {
-
                 val topLeft = Offset.Zero.toSchemeCoordinates()
 
 //                    val range = -MapTileProvider.EQUATOR / 2..MapTileProvider.EQUATOR / 2
@@ -100,15 +103,28 @@ fun MapView(
                 tileIds
                     .sortedBy { hypot((centerTileX - it.x).toDouble(), (centerTileY - it.y).toDouble()) }
                     .forEach { tileId ->
-                        launch {
-                            try {
-                                mapTileProvider.loadTile(tileId)?.also {
-                                    mapTiles += it
-                                }
-                            } catch (e: Exception) {
-                                if (e !is CancellationException) {
-                                    println("WARINIG")
-                                    println(e)
+                        val cachedTile = tileCache[tileId]
+                        if (cachedTile != null) {
+                            mapTiles += cachedTile
+                        } else {
+                            launch {
+                                try {
+                                    val loadedTile = mapTileProvider.loadTile(tileId)
+                                    val tile = if (loadedTile != null) {
+                                        tileCache[tileId] = loadedTile
+                                        loadedTile
+                                    } else {
+                                        null
+                                    }
+                                    if (tile != null) {
+                                        mapTiles += tile
+                                    }
+
+                                } catch (e: Exception) {
+                                    if (e !is CancellationException) {
+                                        println("WARINIG")
+                                        println(e)
+                                    }
                                 }
                             }
                         }
