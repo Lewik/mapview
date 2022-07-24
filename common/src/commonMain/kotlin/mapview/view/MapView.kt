@@ -107,6 +107,10 @@ fun MapView(
                         if (cachedTile != null) {
                             mapTiles += cachedTile
                         } else {
+//                            val croppedTile = tileCache.searchOrCrop(tileId)
+//                            if (croppedTile != null) {
+//                                mapTiles += croppedTile
+//                            }
                             launch {
                                 try {
                                     val loadedTile = mapTileProvider.loadTile(tileId)
@@ -150,3 +154,44 @@ fun MapView(
     }
 }
 
+const val TILE_SIZE = 256
+
+fun LruCache<TileId, MapTile>.searchOrCrop(tile: TileId): MapTile? {
+    val img1 = get(tile)
+    if (img1 != null) {
+        return img1
+    }
+    var zoom = tile.zoom
+    var x = tile.x
+    var y = tile.y
+    while (zoom > 0) {
+        zoom--
+        x /= 2
+        y /= 2
+        val tile2 = TileId(zoom, x, y)
+        val img2 = get(tile2)
+        if (img2 != null) {
+            val deltaZoom = tile.zoom - tile2.zoom
+            val i = tile.x - (x shl deltaZoom)
+            val j = tile.y - (y shl deltaZoom)
+            val size = max(TILE_SIZE ushr deltaZoom, 1)
+            println("//TODO : 256!")
+            return img2.cropAndRestoreSize(i * size, j * size, size)
+        }
+    }
+    return null
+}
+
+fun MapTile.cropAndRestoreSize(x: Int, y: Int, targetSize: Int): MapTile {
+    val scale: Float = targetSize.toFloat() / TILE_SIZE
+    val newSize = maxOf(1, (cropSize * scale).roundToInt())
+    val dx = x * newSize / targetSize
+    val dy = y * newSize / targetSize
+    val newX = offsetX + dx
+    val newY = offsetY + dy
+    return copy(
+        cropSize = newX % TILE_SIZE,
+        offsetX = newY % TILE_SIZE,
+        offsetY = newSize
+    )
+}

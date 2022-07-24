@@ -11,6 +11,7 @@ import mapview.tiles.MapTile
 import mapview.tiles.MapTileProvider
 import mapview.tiles.TileId
 import mapview.toImageBitmap
+import mapview.view.TILE_SIZE
 
 open class HttpMapTileProvider(
     private val url: (zoom: Int, x: Int, y: Int) -> String,
@@ -26,7 +27,7 @@ open class HttpMapTileProvider(
         val url = url(zoom, x, y)
         val result = client.get(url)
         if (result.status.isSuccess()) {
-            MapTile(tileId, result.readBytes().toImageBitmap())
+            MapTile(tileId, result.readBytes().toImageBitmap(), TILE_SIZE, 0, 0)
         } else {
             println("WARNING KTOR can't get $zoom/$x/$y ")
             null

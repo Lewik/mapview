@@ -62,15 +62,17 @@ internal fun AbstractView(
                 onResize(size)
             }
             clipRect {
-                mapTiles.forEach { (tileId, image) ->
-                    val offset = tileId
+                mapTiles.forEach { mapTile ->
+                    val offset = mapTile.id
                         .toSchemaCoordinates()
                         .toOffset()
                     val intOffset = offset
                         .round()
 //                        println("tile $tileId tileNum $tileNum int offset $offset, tileSizeXY $tileSizeXY")
                     drawImage(
-                        image = image,
+                        image = mapTile.image,
+                        srcOffset = IntOffset(mapTile.offsetX, mapTile.offsetY),
+                        srcSize = IntSize(mapTile.cropSize, mapTile.cropSize),
                         dstOffset = intOffset,
                         dstSize = tileSizeXY
                     )
@@ -83,21 +85,21 @@ internal fun AbstractView(
                         )
                         drawIntoCanvas {
                             it.nativeCanvas.drawText1(
-                                string = "x: ${tileId.x}",
+                                string = "x: ${mapTile.id.x}",
                                 x = offset.x + 20.dp.toPx(),
                                 y = offset.y + 20.dp.toPx(),
                                 fontSize = 10.dp.toPx(),
                                 paint = Paint().apply { color = androidx.compose.ui.graphics.Color.Red }
                             )
                             it.nativeCanvas.drawText1(
-                                string = "y: ${tileId.y}",
+                                string = "y: ${mapTile.id.y}",
                                 x = offset.x + 20.dp.toPx(),
                                 y = offset.y + 40.dp.toPx(),
                                 fontSize = 10.dp.toPx(),
                                 paint = Paint().apply { color = androidx.compose.ui.graphics.Color.Red }
                             )
                             it.nativeCanvas.drawText1(
-                                string = "zoom: ${tileId.zoom}",
+                                string = "zoom: ${mapTile.id.zoom}",
                                 x = offset.x + 20.dp.toPx(),
                                 y = offset.y + 60.dp.toPx(),
                                 fontSize = 10.dp.toPx(),
