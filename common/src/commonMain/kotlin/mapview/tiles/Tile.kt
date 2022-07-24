@@ -1,8 +1,7 @@
-package mapview
+package mapview.tiles
 
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import mapview.SchemeCoordinates
 import kotlin.math.pow
 
 data class TileId(
@@ -25,14 +24,7 @@ data class MapTile(
 interface MapTileProvider {
     suspend fun loadTile(tileId: TileId): MapTile?
 
-    val minScale: Int
-    val maxScale: Int
-
-    val tileSize: Dp get() = DEFAULT_TILE_SIZE
-
     companion object {
-        val DEFAULT_TILE_SIZE = 256.dp
-
         const val EQUATOR = 40075016.68557849
     }
 }

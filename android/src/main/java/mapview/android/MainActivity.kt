@@ -8,16 +8,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import mapview.*
+import mapview.CircleFeature
+import mapview.FeatureId
+import mapview.SchemeCoordinates
+import mapview.TextFeature
+import mapview.android.mapview.tile.OpenstreetmapMapTileProvider
 import mapview.view.MapView
 import mapview.viewData.ViewData
 import mapview.viewData.move
@@ -72,33 +68,9 @@ class MainActivity : AppCompatActivity() {
             }
 
 
-            val cache = LruCache<Triple<Int, Int, Int>, ImageBitmap>(200)
             val mapTileProvider by remember {
-                val client = HttpClient(CIO)
                 mutableStateOf(
-                    MapTileProviderImpl(
-                        getTile = { zoom, x, y ->
-                            val key = Triple(zoom, x, y)
-                            val cached = cache[key]
-                            if (cached != null) {
-                                return@MapTileProviderImpl cached
-                            }
-                            val url = "https://tile.openstreetmap.org/$zoom/$x/$y.png"
-                            val result = withContext(Dispatchers.IO) {
-                                client.get(url)
-                            }
-                            if (result.status.isSuccess()) {
-                                val data = result.readBytes().toImageBitmap()
-                                cache.put(key, data)
-                                data
-                            } else {
-                                println("WARNING KTOR can't get $zoom/$x/$y ")
-                                null
-                            }
-                        },
-                        minScale = 1,
-                        maxScale = 19,
-                    )
+                    OpenstreetmapMapTileProvider()
                 )
             }
 

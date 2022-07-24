@@ -2,18 +2,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import mapview.*
+import mapview.CircleFeature
+import mapview.FeatureId
+import mapview.SchemeCoordinates
+import mapview.TextFeature
+import mapview.tile.OpenstreetmapMapTileProvider
 import mapview.view.MapView
 import mapview.viewData.ViewData
 import mapview.viewData.addScale
@@ -97,31 +95,9 @@ fun main() = application {
     }
 
 
-    val cache = LruCache<Triple<Int, Int, Int>, ImageBitmap>(200)
     val mapTileProvider by remember {
-        val client = HttpClient(CIO)
         mutableStateOf(
-            MapTileProviderImpl(
-                getTile = { zoom, x, y ->
-                    val key = Triple(zoom, x, y)
-                    val cached = cache[key]
-                    if (cached != null) {
-                        return@MapTileProviderImpl cached
-                    }
-                    val url = "https://tile.openstreetmap.org/$zoom/$x/$y.png"
-                    val result = client.get(url)
-                    if (result.status.isSuccess()) {
-                        val data = result.readBytes().toImageBitmap()
-                        cache.put(key, data)
-                        data
-                    } else {
-                        println("WARNING KTOR can't get $zoom/$x/$y ")
-                        null
-                    }
-                },
-                minScale = 1,
-                maxScale = 19,
-            )
+            OpenstreetmapMapTileProvider()
         )
     }
 

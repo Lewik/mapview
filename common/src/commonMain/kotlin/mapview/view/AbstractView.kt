@@ -23,6 +23,8 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.*
 import mapview.*
+import mapview.tiles.MapTile
+import mapview.tiles.toSchemaCoordinates
 import mapview.viewData.ViewData
 
 @Composable
