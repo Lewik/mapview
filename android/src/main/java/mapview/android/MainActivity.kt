@@ -18,6 +18,7 @@ import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mapview.*
+import mapview.view.MapView
 import mapview.viewData.ViewData
 import mapview.viewData.move
 import mapview.viewData.multiplyScale
@@ -101,7 +102,7 @@ class MainActivity : AppCompatActivity() {
                 )
             }
 
-            SchemeView(
+            MapView(
                 mapTileProvider = mapTileProvider,
                 features = features.value,
                 onScroll = { amount, _ -> viewData.multiplyScale(amount) },

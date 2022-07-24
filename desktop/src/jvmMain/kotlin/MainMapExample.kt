@@ -14,6 +14,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import mapview.*
+import mapview.view.MapView
 import mapview.viewData.ViewData
 import mapview.viewData.addScale
 import mapview.viewData.move
@@ -131,7 +132,7 @@ fun main() = application {
             position = WindowPosition(Alignment.TopStart),
         ),
     ) {
-        SchemeView(
+        MapView(
             mapTileProvider = mapTileProvider,
             features = features.value,
             onScroll = viewData::addScale,

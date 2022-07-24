@@ -11,6 +11,7 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import mapview.*
+import mapview.view.SchemeView
 import mapview.viewData.ViewData
 import mapview.viewData.addScale
 import mapview.viewData.move

@@ -19,6 +19,7 @@ import io.ktor.http.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import mapview.*
+import mapview.view.MapView
 import mapview.viewData.*
 import java.security.cert.X509Certificate
 import javax.net.ssl.X509TrustManager
@@ -194,7 +195,7 @@ fun main() = application {
             position = WindowPosition(Alignment.TopStart),
         ),
     ) {
-        SchemeView(
+        MapView(
             mapTileProvider = mapTileProvider,
             features = features.value,
             onScroll = viewData::addScale,
