@@ -1,5 +1,6 @@
 package mapview
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import kotlin.math.max
@@ -31,7 +32,6 @@ data class ViewData(
     )
 
 
-    //in display coordinates
     fun move(dragAmount: Offset) = copy(
         focus = SchemeCoordinates(
             x = focus.x - dragAmount.x / scale,
@@ -41,11 +41,13 @@ data class ViewData(
         size = size
     )
 
+    fun resize(newSize: Size) = copy(size = newSize)
+
     fun addScale(
-        scaleDelta: Number,
+        scaleDelta: Float,
 //    invariant: SchemeCoordinates = focus,
     ): ViewData {
-        val newScale = (scale * (1 + scaleDelta.toFloat() / 10)).coerce()
+        val newScale = (scale * (1 + scaleDelta / 10)).coerce()
         return copy(scale = newScale)
 //    return if (invariant == focus) {
 //        copy(scale = newScale)
@@ -55,6 +57,13 @@ data class ViewData(
 //            scale = newScale
 //        )
 //    }
+    }
+
+    fun multiplyScale(
+        multiplier: Float,
+    ): ViewData {
+        val newScale = (scale * multiplier).coerce()
+        return copy(scale = newScale)
     }
 
     fun zoomToExtent(extent: Extent): ViewData {
@@ -77,6 +86,33 @@ data class ViewData(
 
         return coerceIn(min, maxScale)
     }
+}
+
+fun MutableState<ViewData>.move(dragAmount: Offset) {
+    value = value.move(dragAmount)
+}
+
+fun MutableState<ViewData>.resize(newSize: Size) {
+    value = value.resize(newSize)
+}
+
+fun MutableState<ViewData>.addScale(
+    scaleDelta: Float,
+//    invariant: SchemeCoordinates = focus,
+) {
+    value = value.addScale(scaleDelta)
+}
+
+fun MutableState<ViewData>.multiplyScale(multiplier: Float) {
+    value = value.multiplyScale(multiplier)
+}
+
+fun MutableState<ViewData>.zoomToExtent(extent: Extent) {
+    value = value.zoomToExtent(extent)
+}
+
+fun MutableState<ViewData>.zoomToFeatures(features: Iterable<Feature>) {
+    value = value.zoomToFeatures(features)
 }
 
 

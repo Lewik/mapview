@@ -33,8 +33,12 @@ fun SchemeView(
     mapTileProvider: MapTileProvider? = null,
     features: List<Feature>,
     viewDataState: State<ViewData>,
-    onViewDataChange: (viewData: ViewData) -> Unit,
-    onClick: (offset: Offset) -> Unit,
+    onDragStart: (offset: Offset) -> Unit = {},
+    onDrag: (dragAmount: Offset) -> Unit = {},
+    onDragEnd: () -> Unit = {},
+    onDragCancel: () -> Unit = {},
+    onScroll: (scrollY: Float) -> Unit = {},
+    onClick: (offset: Offset) -> Unit = {},
     onResize: (size: Size) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -117,9 +121,12 @@ fun SchemeView(
 
         val canvasModifier = modifier
             .canvasGestures(
-                viewData = viewDataState,
-                onViewDataChange = onViewDataChange,
-                onClick = { onClick(it) }
+                onDragStart = onDragStart,
+                onDrag = onDrag,
+                onDragEnd = onDragEnd,
+                onDragCancel = onDragCancel,
+                onScroll = onScroll,
+                onClick = onClick
             )
             .fillMaxSize()
 

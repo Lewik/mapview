@@ -1,37 +1,35 @@
 package mapview
 
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
-import androidx.compose.runtime.State
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 
 actual fun Modifier.canvasGestures(
-    viewData: State<ViewData>,
-    onViewDataChange: (viewData: ViewData) -> Unit,
+    onDragStart: (offset: Offset) -> Unit,
+    onDrag: (dragAmount: Offset) -> Unit,
+    onDragEnd: () -> Unit,
+    onDragCancel: () -> Unit,
+    onScroll: (scrollY: Float) -> Unit,
     onClick: (offset: Offset) -> Unit,
-) =
-    pointerInput(Unit) {
-//        detectTransformGestures(
-//            onGesture = { centroid, pan, gestureZoom, gestureRotate ->
-//                onViewDataChange(
-//                    viewData
-//                        .value
-//                        .addScale(
-//                            gestureZoom * 1.0 / 3.0
-////                            SchemeCoordinates(change.position.x / viewPoint.scale, change.position.y / viewPoint.scale)
-//                        )
-//                )
-//            }
-//        )
-        detectDragGestures { change, dragAmount ->
-            change.consumeAllChanges()
-            onViewDataChange(
-                viewData
-                    .value
-                    .move(dragAmount)
-            )
+) = pointerInput(Unit) { detectTapGestures(onTap = onClick) }
+    .pointerInput(Unit) {
+        detectDragGestures(
+            onDragStart = onDragStart,
+            onDrag = { _, dragAmount -> onDrag(dragAmount) },
+            onDragEnd = onDragEnd,
+            onDragCancel = onDragCancel,
+        )
+    }
+    .composed {
+        val state = rememberTransformableState { zoomChange, offsetChange, rotationChange ->
+            onScroll(zoomChange)
+//                rotation += rotationChange
+            onDrag(offsetChange)
         }
+        transformable(state = state)
     }

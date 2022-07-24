@@ -88,12 +88,13 @@ fun main() = application {
     ) {
         SchemeView(
             features = features.value,
-            onViewDataChange = { viewData.value = it },
+            onScroll = { viewData.addScale(it) },
+            onDrag = { viewData.move(it) },
             onClick = { offset ->
                 val coordinates = with(viewData.value) { offset.toSchemeCoordinates() }
                 println("CLICK as $coordinates")
             },
-            onResize = { viewData.value = viewData.value.copy(size = it) },
+            onResize = { viewData.resize(it) },
             viewDataState = viewData,
         )
 

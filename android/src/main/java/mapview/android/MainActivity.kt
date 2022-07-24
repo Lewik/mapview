@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -101,12 +100,14 @@ class MainActivity : AppCompatActivity() {
             SchemeView(
                 mapTileProvider = mapTileProvider,
                 features = features.value,
-                onViewDataChange = { viewData.value = it },
+                onScroll = { viewData.multiplyScale(it) },
+                onDragStart = { println("DRAG START") },
+                onDrag = { viewData.move(it) },
                 onClick = { offset ->
                     val coordinates = with(viewData.value) { offset.toSchemeCoordinates() }
                     println("CLICK as $coordinates")
                 },
-                onResize = { viewData.value = viewData.value.copy(size = it) },
+                onResize = { viewData.resize(it) },
                 viewDataState = viewData,
             )
         }

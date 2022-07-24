@@ -192,8 +192,9 @@ fun main() = application {
         SchemeView(
             mapTileProvider = mapTileProvider,
             features = features.value,
-            onViewDataChange = { viewData.value = it },
-            onResize = { viewData.value = viewData.value.copy(size = it) },
+            onScroll = { viewData.addScale(it) },
+            onDrag = { viewData.move(it) },
+            onResize = { viewData.resize(it) },
             viewDataState = viewData,
             onClick = { offset ->
                 with(viewData.value) {
