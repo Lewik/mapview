@@ -23,7 +23,7 @@ data class MapTile(
 )
 
 interface MapTileProvider {
-    suspend fun loadTileAsync(tileId: TileId): MapTile?
+    suspend fun loadTile(tileId: TileId): MapTile?
 
     val minScale: Int
     val maxScale: Int

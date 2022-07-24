@@ -105,7 +105,7 @@ fun SchemeView(
                             .sortedBy { hypot((centerTileX - it.x).toDouble(), (centerTileY - it.y).toDouble()) }
                             .forEach { tileId ->
                                 try {
-                                    mapTileProvider.loadTileAsync(tileId)?.also {
+                                    mapTileProvider.loadTile(tileId)?.also {
                                         mapTiles += it
                                     }
                                 } catch (e: Exception) {

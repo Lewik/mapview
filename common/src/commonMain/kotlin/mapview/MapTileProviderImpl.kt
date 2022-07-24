@@ -12,7 +12,7 @@ class MapTileProviderImpl(
     private suspend fun downloadImageAsync(tileId: TileId) =
         getTile(tileId.zoom, tileId.x, tileId.y)
 
-    override suspend fun loadTileAsync(
+    override suspend fun loadTile(
         tileId: TileId,
     ): MapTile? {
         val imageBitmap = downloadImageAsync(tileId)
