@@ -43,31 +43,32 @@ fun SchemeView(
     onResize: (size: Size) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val viewData by derivedStateOf { viewDataState.value } //TODO is it correct?
     with(LocalDensity.current) {
-        val scale by derivedStateOf { viewData.scale }
+        val viewData by derivedStateOf { viewDataState.value } //TODO is it correct?
+        with(viewData) {
+            val scale by derivedStateOf { viewData.scale }
 
-        val zoom by derivedStateOf {
-            if (mapTileProvider != null) {
-                (mapTileProvider.minScale..mapTileProvider.maxScale).firstOrNull { zoom ->
-                    val totalTiles = 2.0.pow(zoom)
-                    val scaledMapSize = MapTileProvider.EQUATOR * scale
-                    val scaledTileSize = scaledMapSize / totalTiles
-                    scaledTileSize < mapTileProvider.tileSize.toPx()
-                } ?: mapTileProvider.maxScale
-            } else {
-                0
+            val zoom by derivedStateOf {
+                if (mapTileProvider != null) {
+                    (mapTileProvider.minScale..mapTileProvider.maxScale).firstOrNull { zoom ->
+                        val totalTiles = 2.0.pow(zoom)
+                        val scaledMapSize = MapTileProvider.EQUATOR * scale
+                        val scaledTileSize = scaledMapSize / totalTiles
+                        scaledTileSize < mapTileProvider.tileSize.toPx()
+                    } ?: mapTileProvider.maxScale
+                } else {
+                    0
+                }
             }
-        }
-        val tileNum by derivedStateOf { 2.0.pow(zoom).toInt() }
-        val tileSize by derivedStateOf { ceil(MapTileProvider.EQUATOR * scale / tileNum).toInt() }
+            val tileNum by derivedStateOf { 2.0.pow(zoom).toInt() }
+            val tileSize by derivedStateOf { ceil(MapTileProvider.EQUATOR * scale / tileNum).toInt() }
 //        println("TEST zoom $zoom tileNum $tileNum tileSize $tileSize")
-        val mapTiles = remember { mutableStateListOf<MapTile>() }
+            val mapTiles = remember { mutableStateListOf<MapTile>() }
 
 
-        if (mapTileProvider !== null) {
-            LaunchedEffect(viewData) {
-                with(viewData) {
+            if (mapTileProvider !== null) {
+                LaunchedEffect(viewData) {
+
                     val topLeft = Offset.Zero.toSchemeCoordinates()
 
 //                    val range = -MapTileProvider.EQUATOR / 2..MapTileProvider.EQUATOR / 2
@@ -118,26 +119,24 @@ fun SchemeView(
                     }
                 }
             }
-        }
 
-        val canvasModifier = modifier
-            .canvasGestures(
-                onDragStart = onDragStart,
-                onDrag = onDrag,
-                onDragEnd = onDragEnd,
-                onDragCancel = onDragCancel,
-                onScroll = onScroll,
-                onClick = onClick
-            )
-            .fillMaxSize()
+            val canvasModifier = modifier
+                .canvasGestures(
+                    onDragStart = onDragStart,
+                    onDrag = onDrag,
+                    onDragEnd = onDragEnd,
+                    onDragCancel = onDragCancel,
+                    onScroll = onScroll,
+                    onClick = onClick
+                )
+                .fillMaxSize()
 
 
-        Canvas(canvasModifier) {
-            if (viewData.size != size) {
-                onResize(size)
-            }
-            clipRect {
-                with(viewData) {
+            Canvas(canvasModifier) {
+                if (viewData.size != size) {
+                    onResize(size)
+                }
+                clipRect {
                     if (mapTileProvider !== null) {
                         val tileSizeXY = IntSize(
                             width = tileSize,
@@ -243,23 +242,24 @@ fun SchemeView(
                             end = Offset(size.width, size.height / 2)
                         )
                     }
+
                 }
             }
-        }
 
-        if (viewData.showDebug) {
-            Box {
-                Column(
-                    modifier = Modifier
-                        .background(color = Color.White.copy(alpha = .5f))
-                        .padding(10.dp)
-                ) {
-                    Text("Focus: x: ${viewData.focus.x}, y: ${viewData.focus.x}")
-                    Text("Scale: ${viewData.scale}, min: ${viewData.getMinScaleCoerce()}, max: ${viewData.maxScale}")
-                    if (mapTileProvider != null) {
-                        Text("Zoom: $zoom")
+            if (viewData.showDebug) {
+                Box {
+                    Column(
+                        modifier = Modifier
+                            .background(color = Color.White.copy(alpha = .5f))
+                            .padding(10.dp)
+                    ) {
+                        Text("Focus: x: ${viewData.focus.x}, y: ${viewData.focus.x}")
+                        Text("Scale: ${viewData.scale}, min: ${viewData.getMinScaleCoerce()}, max: ${viewData.maxScale}")
+                        if (mapTileProvider != null) {
+                            Text("Zoom: $zoom")
+                        }
+                        Text("Size: width:${viewData.size.width}, height: ${viewData.size.height}")
                     }
-                    Text("Size: width:${viewData.size.width}, height: ${viewData.size.height}")
                 }
             }
         }
