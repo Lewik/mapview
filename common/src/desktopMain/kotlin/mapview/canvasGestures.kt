@@ -18,12 +18,13 @@ actual fun Modifier.canvasGestures(
     onDrag: (dragAmount: Offset) -> Unit,
     onDragEnd: () -> Unit,
     onDragCancel: () -> Unit,
-    onScroll: (scrollY: Float) -> Unit,
+    onScroll: (scrollY: Float, target: Offset?) -> Unit,
     onClick: (offset: Offset) -> Unit,
 ): Modifier {
     return Modifier
         .onPointerEvent(PointerEventType.Scroll) {
-            onScroll(-it.changes.first().scrollDelta.y)
+            val change = it.changes.first()
+            onScroll(-change.scrollDelta.y, change.position)
         }
         .pointerInput(Unit) {
             detectDragGestures(

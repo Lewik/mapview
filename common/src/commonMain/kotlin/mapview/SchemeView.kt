@@ -38,7 +38,7 @@ fun SchemeView(
     onDrag: (dragAmount: Offset) -> Unit = {},
     onDragEnd: () -> Unit = {},
     onDragCancel: () -> Unit = {},
-    onScroll: (scrollY: Float) -> Unit = {},
+    onScroll: (scrollY: Float, target: Offset?) -> Unit = { _, _ -> },
     onClick: (offset: Offset) -> Unit = {},
     onResize: (size: Size) -> Unit,
     modifier: Modifier = Modifier,

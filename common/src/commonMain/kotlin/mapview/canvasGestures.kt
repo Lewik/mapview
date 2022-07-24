@@ -8,6 +8,6 @@ expect fun Modifier.canvasGestures(
     onDrag: (dragAmount: Offset) -> Unit,
     onDragEnd: () -> Unit,
     onDragCancel: () -> Unit,
-    onScroll: (scrollY: Float) -> Unit,
+    onScroll: (scrollY: Float, target: Offset?) -> Unit,
     onClick: (offset: Offset) -> Unit,
 ): Modifier

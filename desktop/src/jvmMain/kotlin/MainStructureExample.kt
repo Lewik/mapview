@@ -197,7 +197,7 @@ fun main() = application {
         SchemeView(
             mapTileProvider = mapTileProvider,
             features = features.value,
-            onScroll = { viewData.addScale(it) },
+            onScroll = viewData::addScale,
             onDragStart = { offset ->
                 val target = getClosestFeaturesIds(
                     density = density,
@@ -234,7 +234,7 @@ fun main() = application {
                 }
             },
             onDragEnd = { draggableFeatureId.value = null },
-            onResize = { viewData.resize(it) },
+            onResize = viewData::resize,
             viewDataState = viewData,
             onClick = { offset ->
                 with(viewData.value) {

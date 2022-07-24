@@ -14,7 +14,7 @@ actual fun Modifier.canvasGestures(
     onDrag: (dragAmount: Offset) -> Unit,
     onDragEnd: () -> Unit,
     onDragCancel: () -> Unit,
-    onScroll: (scrollY: Float) -> Unit,
+    onScroll: (scrollY: Float, target: Offset?) -> Unit,
     onClick: (offset: Offset) -> Unit,
 ) = pointerInput(Unit) { detectTapGestures(onTap = onClick) }
     .pointerInput(Unit) {
@@ -27,7 +27,7 @@ actual fun Modifier.canvasGestures(
     }
     .composed {
         val state = rememberTransformableState { zoomChange, offsetChange, rotationChange ->
-            onScroll(zoomChange)
+            onScroll(zoomChange, null)
 //                rotation += rotationChange
             onDrag(offsetChange)
         }

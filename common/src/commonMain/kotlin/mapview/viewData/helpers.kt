@@ -16,9 +16,12 @@ fun MutableState<ViewData>.resize(newSize: Size) {
 
 fun MutableState<ViewData>.addScale(
     scaleDelta: Float,
-//    invariant: SchemeCoordinates = focus,
+    target: Offset? = null,
 ) {
-    value = value.addScale(scaleDelta)
+    value = value.addScale(
+        scaleDelta = scaleDelta,
+        target = target
+    )
 }
 
 fun MutableState<ViewData>.multiplyScale(multiplier: Float) {

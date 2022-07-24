@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity() {
             SchemeView(
                 mapTileProvider = mapTileProvider,
                 features = features.value,
-                onScroll = { viewData.multiplyScale(it) },
+                onScroll = { amount, _ -> viewData.multiplyScale(amount) },
                 onDragStart = { println("DRAG START") },
                 onDrag = { viewData.move(it) },
                 onClick = { offset ->

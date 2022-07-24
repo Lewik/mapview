@@ -44,18 +44,16 @@ data class ViewData(
 
     fun addScale(
         scaleDelta: Float,
-//    invariant: SchemeCoordinates = focus,
+        target: Offset? = null,
     ): ViewData {
+        val targetOffset = target ?: focus.toOffset()
+        val focusOffset = focus.toOffset()
         val newScale = (scale * (1 + scaleDelta / 10)).coerce()
-        return copy(scale = newScale)
-//    return if (invariant == focus) {
-//        copy(scale = newScale)
-//    } else {
-//        ViewData(
-//            focus = focus,
-//            scale = newScale
-//        )
-//    }
+        return copy(
+            focus = targetOffset.toSchemeCoordinates(),
+            scale = newScale,
+        )
+            .move(targetOffset - focusOffset)
     }
 
     fun multiplyScale(
