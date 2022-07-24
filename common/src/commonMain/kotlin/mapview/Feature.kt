@@ -15,20 +15,21 @@ import kotlin.jvm.JvmInline
 value class FeatureId(val value: String)
 sealed class Feature {
     abstract fun getExtent(): Extent
-    abstract val featureId: FeatureId
+    abstract val id: FeatureId
 }
 
-interface PointFeatureType {
+sealed interface FeatureType
+interface PointFeatureType : FeatureType {
     val position: SchemeCoordinates
 }
 
-interface LineFeatureType {
+interface LineFeatureType : FeatureType {
     val positionStart: SchemeCoordinates
     val positionEnd: SchemeCoordinates
 }
 
 class CircleFeature(
-    override val featureId: FeatureId,
+    override val id: FeatureId,
     override val position: SchemeCoordinates,
     val radius: Dp,
     val color: Color,
@@ -39,7 +40,7 @@ class CircleFeature(
 }
 
 class LineFeature(
-    override val featureId: FeatureId,
+    override val id: FeatureId,
     override val positionStart: SchemeCoordinates,
     override val positionEnd: SchemeCoordinates,
     val color: Color,
@@ -49,7 +50,7 @@ class LineFeature(
 }
 
 class TextFeature(
-    override val featureId: FeatureId,
+    override val id: FeatureId,
     override val position: SchemeCoordinates,
     val text: String,
     val color: Color,
@@ -58,7 +59,7 @@ class TextFeature(
 }
 
 class BitmapImageFeature(
-    override val featureId: FeatureId,
+    override val id: FeatureId,
     val position: SchemeCoordinates,
     val image: ImageBitmap,
     val size: DpSize,
@@ -68,7 +69,7 @@ class BitmapImageFeature(
 
 
 class VectorImageFeature(
-    override val featureId: FeatureId,
+    override val id: FeatureId,
     val position: SchemeCoordinates,
     val painter: Painter,
     val size: DpSize,

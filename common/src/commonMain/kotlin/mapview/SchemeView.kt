@@ -19,10 +19,7 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toOffset
-import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.unit.*
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.*
@@ -34,16 +31,14 @@ private fun IntRange.intersect(other: IntRange) = max(first, other.first)..min(l
 @Composable
 fun SchemeView(
     mapTileProvider: MapTileProvider? = null,
-//    computeViewData: (canvasSize: DpSize) -> MapViewData,
-//    features: Map<FeatureId, MapFeature>,
-//    onClick: MapViewData.() -> Unit,
-//    config: MapViewConfig,
     features: List<Feature>,
-    viewData: ViewData,
+    viewDataState: State<ViewData>,
     onViewDataChange: (viewData: ViewData) -> Unit,
+    onClick: (offset: Offset) -> Unit,
     onResize: (size: Size) -> Unit,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
 ) {
+    val viewData by derivedStateOf { viewDataState.value } //TODO is it correct?
     with(LocalDensity.current) {
         val scale by derivedStateOf { viewData.scale }
 
@@ -60,13 +55,10 @@ fun SchemeView(
             }
         }
         val tileNum by derivedStateOf { 2.0.pow(zoom).toInt() }
-        val tileSize by derivedStateOf { (MapTileProvider.EQUATOR * scale / tileNum).toInt() }
-        println("AAA zoom $zoom tileNum $tileNum tileSize $tileSize")
+        val tileSize by derivedStateOf { ceil(MapTileProvider.EQUATOR * scale / tileNum).toInt() }
+//        println("TEST zoom $zoom tileNum $tileNum tileSize $tileSize")
         val mapTiles = remember { mutableStateListOf<MapTile>() }
 
-
-        val canvasModifier = modifier
-            .fillMaxSize()
 
         if (mapTileProvider !== null) {
             LaunchedEffect(viewData) {
@@ -97,7 +89,7 @@ fun SchemeView(
                         }
 
 
-                    println("tileIds (${tileIds.size}) (0..${size.width / tileSize} 0..${size.height / tileSize}) $tileIds")
+//                    println("tileIds (${tileIds.size}) (0..${size.width / tileSize} 0..${size.height / tileSize}) $tileIds")
                     mapTiles.clear()
 
                     val centerTileX = (startTileId.x + tileXRange.first + startTileId.x + tileXRange.last) / 2
@@ -123,6 +115,15 @@ fun SchemeView(
             }
         }
 
+        val canvasModifier = modifier
+            .canvasGestures(
+                viewData = viewDataState,
+                onViewDataChange = onViewDataChange,
+                onClick = { onClick(it) }
+            )
+            .fillMaxSize()
+
+
         Canvas(canvasModifier) {
             if (viewData.size != size) {
                 onResize(size)
@@ -139,7 +140,7 @@ fun SchemeView(
                                 .toSchemaCoordinates()
                                 .toOffset()
                             val intOffset = offset
-                                .toIntOffset()
+                                .round()
 //                        println("tile $tileId tileNum $tileNum int offset $offset, tileSizeXY $tileSizeXY")
                             drawImage(
                                 image = image,
@@ -256,7 +257,3 @@ fun SchemeView(
     }
 }
 
-private fun TileId.coerceInTileRange(tileRange: IntRange) = copy(
-    x = x.coerceIn(tileRange),
-    y = y.coerceIn(tileRange),
-)

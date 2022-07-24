@@ -3,7 +3,6 @@ package mapview
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlin.math.floor
 import kotlin.math.pow
 
 data class TileId(
@@ -11,6 +10,12 @@ data class TileId(
     val x: Int,
     val y: Int,
 )
+
+fun TileId.coerceInTileRange(tileRange: IntRange) = copy(
+    x = x.coerceIn(tileRange),
+    y = y.coerceIn(tileRange),
+)
+
 
 data class MapTile(
     val id: TileId,

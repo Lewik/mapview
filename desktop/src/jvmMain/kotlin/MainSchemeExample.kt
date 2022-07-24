@@ -3,7 +3,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -22,43 +21,43 @@ fun main() = application {
         mutableStateOf(
             listOf(
                 LineFeature(
-                    featureId = FeatureId("1"),
+                    id = FeatureId("1"),
                     positionStart = SchemeCoordinates(100.0, 100.0),
                     positionEnd = SchemeCoordinates(-100.0, -100.0),
                     color = Color.Blue
                 ),
                 LineFeature(
-                    featureId = FeatureId("2"),
+                    id = FeatureId("2"),
                     positionStart = SchemeCoordinates(-100.0, 100.0),
                     positionEnd = SchemeCoordinates(100.0, -100.0),
                     color = Color.Green
                 ),
                 LineFeature(
-                    featureId = FeatureId("3"),
+                    id = FeatureId("3"),
                     positionStart = SchemeCoordinates(0.0, 0.0),
                     positionEnd = SchemeCoordinates(0.0, 50.0),
                     color = Color.Blue
                 ),
                 LineFeature(
-                    featureId = FeatureId("4"),
+                    id = FeatureId("4"),
                     positionStart = SchemeCoordinates(50.0, 0.0),
                     positionEnd = SchemeCoordinates(50.0, 50.0),
                     color = Color.Blue
                 ),
                 LineFeature(
-                    featureId = FeatureId("5"),
+                    id = FeatureId("5"),
                     positionStart = SchemeCoordinates(100.0, 0.0),
                     positionEnd = SchemeCoordinates(100.0, 50.0),
                     color = Color.Blue
                 ),
                 CircleFeature(
-                    featureId = FeatureId("6"),
+                    id = FeatureId("6"),
                     position = focus,
                     radius = 4.dp,
                     color = Color.Red
                 ),
                 CircleFeature(
-                    featureId = FeatureId("7"),
+                    id = FeatureId("7"),
                     position = SchemeCoordinates(50.0, -25.0),
                     radius = 2.dp,
                     color = Color.Black
@@ -89,14 +88,13 @@ fun main() = application {
     ) {
         SchemeView(
             features = features.value,
-            onViewDataChange = { TODO() },
+            onViewDataChange = { viewData.value = it },
+            onClick = { offset ->
+                val coordinates = with(viewData.value) { offset.toSchemeCoordinates() }
+                println("CLICK as $coordinates")
+            },
             onResize = { viewData.value = viewData.value.copy(size = it) },
-            viewData = viewData.value,
-            modifier = Modifier.canvasGestures(
-                viewData = viewData,
-                onViewDataChange = { viewData.value = it },
-                onClick = { println("CLICK as $it") }
-            )
+            viewDataState = viewData,
         )
 
         Box {

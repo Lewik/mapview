@@ -4,13 +4,14 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.State
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.*
 
 @OptIn(ExperimentalComposeUiApi::class)
 actual fun Modifier.canvasGestures(
     viewData: State<ViewData>,
     onViewDataChange: (viewData: ViewData) -> Unit,
-    onClick: (point: SchemeCoordinates) -> Unit,
+    onClick: (offset: Offset) -> Unit,
 ): Modifier {
     return Modifier
         .onPointerEvent(PointerEventType.Scroll) {
@@ -32,11 +33,7 @@ actual fun Modifier.canvasGestures(
         .pointerInput(Unit) {
             detectTapGestures(
                 onTap = {
-                    onClick(
-                        with(viewData.value) {
-                            it.toSchemeCoordinates()
-                        }
-                    )
+                    onClick(it)
                 },
             )
         }

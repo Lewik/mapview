@@ -41,13 +41,13 @@ class MainActivity : AppCompatActivity() {
                 mutableStateOf(
                     listOf(
                         CircleFeature(
-                            featureId = FeatureId("1"),
+                            id = FeatureId("1"),
                             position = focus,
                             radius = 3.dp,
                             color = Color.Red
                         ),
                         TextFeature(
-                            featureId = FeatureId("2"),
+                            id = FeatureId("2"),
                             position = focus,
                             text = "Test Тест",
                             color = Color.Red
@@ -101,14 +101,13 @@ class MainActivity : AppCompatActivity() {
             SchemeView(
                 mapTileProvider = mapTileProvider,
                 features = features.value,
-                onViewDataChange = { TODO() },
+                onViewDataChange = { viewData.value = it },
+                onClick = { offset ->
+                    val coordinates = with(viewData.value) { offset.toSchemeCoordinates() }
+                    println("CLICK as $coordinates")
+                },
                 onResize = { viewData.value = viewData.value.copy(size = it) },
-                viewData = viewData.value,
-                modifier = Modifier.canvasGestures(
-                    viewData = viewData,
-                    onViewDataChange = { viewData.value = it },
-                    onClick = { println("CLICK as $it") }
-                )
+                viewDataState = viewData,
             )
         }
     }

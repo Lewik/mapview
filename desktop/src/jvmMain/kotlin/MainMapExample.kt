@@ -1,8 +1,5 @@
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -33,23 +30,54 @@ fun main() = application {
     val focus = focusMoscow
     val scale = 1.0
 
-    val features = remember {
-        mutableStateOf(
-            listOf(
-                CircleFeature(
-                    featureId = FeatureId("1"),
-                    position = focus,
-                    radius = 3.dp,
-                    color = Color.Red
-                ),
-                TextFeature(
-                    featureId = FeatureId("2"),
-                    position = focus,
-                    text = "Test Тест",
-                    color = Color.Red
-                ),
-            )
+    val scope = rememberCoroutineScope()
+    val flag = remember { mutableStateOf(true) }
+//    scope.launch {
+//        while (isActive) {
+//            delay(500)
+//            //Overwrite a feature with new color
+//            flag.value = !flag.value
+//        }
+//    }
+    val features = derivedStateOf {
+        listOf(
+            CircleFeature(
+                id = FeatureId("1"),
+                position = focus,
+                radius = 3.dp,
+                color = Color.Red
+            ),
+            TextFeature(
+                id = FeatureId("2"),
+                position = focus,
+                text = "Test Тест",
+                color = Color.Red
+            ),
         )
+            //90k features
+            .plus((1..300).flatMap { y ->
+                (1..300).map { x ->
+                    CircleFeature(
+                        id = FeatureId("generated $x-$y ${flag.value}"),
+                        position = SchemeCoordinates(focus.x + x * 2, focus.y + y * 2),
+                        radius = 2.dp,
+                        color = listOf(
+                            Color.Black,
+                            Color.DarkGray,
+                            Color.Gray,
+                            Color.LightGray,
+                            Color.White,
+                            Color.Red,
+                            Color.Green,
+                            Color.Blue,
+                            Color.Yellow,
+                            Color.Cyan,
+                            Color.Magenta,
+                        ).random()
+                    )
+                }
+            }
+            )
     }
 
     val viewData = remember {
@@ -102,14 +130,13 @@ fun main() = application {
         SchemeView(
             mapTileProvider = mapTileProvider,
             features = features.value,
-            onViewDataChange = { TODO() },
+            onViewDataChange = { viewData.value = it },
+            onClick = { offset ->
+                val coordinates = with(viewData.value) { offset.toSchemeCoordinates() }
+                println("CLICK as $coordinates")
+            },
             onResize = { viewData.value = viewData.value.copy(size = it) },
-            viewData = viewData.value,
-            modifier = Modifier.canvasGestures(
-                viewData = viewData,
-                onViewDataChange = { viewData.value = it },
-                onClick = { println("CLICK as $it") }
-            )
+            viewDataState = viewData,
         )
     }
 }
