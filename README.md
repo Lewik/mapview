@@ -15,11 +15,9 @@ Use https://jitpack.io repository (not working, use publishToLocalMaven)
 		}
 	}
 ```
-Use these dependencies per kotlin module respectively:
+
 ```
-compile 'com.github.lewik.mapview:mapview:2.0.4' //for common modules
-compile 'com.github.lewik.mapview:mapview-js:2.0.4'  //for js modules
-compile 'com.github.lewik.mapview:mapview-jvm:2.0.4'  //for jvm modules
+compile 'com.github.lewik.mapview:mapview:2.0.4'
 ```
 
 ## Usage
