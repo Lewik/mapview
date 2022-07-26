@@ -7,8 +7,8 @@ plugins {
     `maven-publish`
 }
 
-group = "mapview"
-version = "1.0-SNAPSHOT"
+group = "com.github.lewik"
+version = "0.0.1"
 
 
 val ktorCore = "io.ktor:ktor-client-core:$KTOR_VERSION"
