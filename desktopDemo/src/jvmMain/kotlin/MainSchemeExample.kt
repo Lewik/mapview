@@ -117,10 +117,6 @@ fun main() = application {
             viewDataState = viewData,
         )
 
-        Box {
-            Text("${viewData.value}")
-        }
-
     }
 }
 
