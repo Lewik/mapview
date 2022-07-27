@@ -21,7 +21,7 @@ kotlin {
     sourceSets {
         val jvmMain by getting {
             dependencies {
-                implementation(project(":common"))
+                implementation(project(":mapview"))
                 implementation(compose.desktop.currentOs)
                 api("io.ktor:ktor-client-core:$KTOR_VERSION")
                 api("io.ktor:ktor-client-cio:$KTOR_VERSION")

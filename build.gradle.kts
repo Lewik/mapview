@@ -1,4 +1,4 @@
-group "mapview"
+group "com.ginhub.lewik"
 version "1.0-SNAPSHOT"
 
 allprojects {

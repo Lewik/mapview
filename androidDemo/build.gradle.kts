@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":common"))
+    implementation(project(":mapview"))
     api("io.ktor:ktor-client-core:$KTOR_VERSION")
     api("io.ktor:ktor-client-cio:$KTOR_VERSION")
     implementation("androidx.activity:activity-compose:1.3.0")
