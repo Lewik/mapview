@@ -2,8 +2,11 @@ package mapview.viewData
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import mapview.*
+import mapview.Extent
+import mapview.Feature
+import mapview.SchemeCoordinates
 import mapview.tiles.MapTileProvider
+import mapview.toExtent
 import kotlin.math.max
 import kotlin.math.min
 

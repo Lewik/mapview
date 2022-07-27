@@ -123,11 +123,7 @@ internal fun AbstractView(
                             strokeWidth = feature.width.toPx(),
                             cap = feature.cap
                         )
-                        is BitmapImageFeature -> drawImage(
-                            image = feature.image,
-                            topLeft = feature.position.toOffset(),
-                        )
-                        is VectorImageFeature -> {
+                        is ImageFeature -> {
                             val offset = feature.position.toOffset()
                             translate(
                                 left = offset.x,
@@ -135,6 +131,18 @@ internal fun AbstractView(
                             ) {
                                 with(feature.painter) {
                                     draw(size = feature.size.toSize())
+                                }
+                            }
+                        }
+                        is ScaledImageFeature -> {
+                            val size = feature.size.toSize() * scale.toFloat()
+                            val offset = feature.position.toOffset()
+                            translate(
+                                left = offset.x,
+                                top = offset.y
+                            ) {
+                                with(feature.painter) {
+                                    draw(size = size)
                                 }
                             }
                         }

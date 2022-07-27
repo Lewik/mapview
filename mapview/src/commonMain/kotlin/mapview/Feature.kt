@@ -1,7 +1,6 @@
 package mapview
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -63,21 +62,27 @@ class TextFeature(
     override fun getExtent() = Extent(position, position)
 }
 
-class BitmapImageFeature(
-    override val id: FeatureId,
-    val position: SchemeCoordinates,
-    val image: ImageBitmap,
-    val size: DpSize,
-) : Feature() {
-    override fun getExtent() = Extent(position, position)
-}
-
-
-class VectorImageFeature(
+class ImageFeature(
     override val id: FeatureId,
     val position: SchemeCoordinates,
     val painter: Painter,
     val size: DpSize,
 ) : Feature() {
     override fun getExtent() = Extent(position, position)
+}
+
+class ScaledImageFeature(
+    override val id: FeatureId,
+    //left top
+    val position: SchemeCoordinates,
+    val painter: Painter,
+    val size: DpSize,
+) : Feature() {
+    override fun getExtent(): Extent {
+        //original size in dp is 1 to 1 as SchemeCoordinates
+        return Extent(
+            position,
+            position + SchemeCoordinates(x = size.width.value.toDouble(), y = -size.height.value.toDouble())
+        )
+    }
 }

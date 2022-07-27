@@ -5,6 +5,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.res.loadImageBitmap
+import androidx.compose.ui.res.useResource
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
@@ -19,12 +23,22 @@ import mapview.viewData.resize
 
 fun main() = application {
 
+    val (painter, imgSize) = remember() {
+        val image = useResource("img.png", ::loadImageBitmap)
+        BitmapPainter(image) to DpSize(image.width.dp, image.height.dp)
+    }
     val focus = SchemeCoordinates(0.0, 0.0)
     val scale = 1.0
 
     val features = remember {
         mutableStateOf(
             listOf(
+                ScaledImageFeature(
+                    id = FeatureId("0"),
+                    position = SchemeCoordinates(.0, .0),
+                    painter = painter,
+                    size = imgSize
+                ),
                 LineFeature(
                     id = FeatureId("1"),
                     positionStart = SchemeCoordinates(100.0, 100.0),
@@ -78,7 +92,7 @@ fun main() = application {
                 scale = scale,
                 size = Size(512f, 512f),
                 showDebug = true,
-            )
+            ).zoomToFeatures(features.value)
         )
     }
 
