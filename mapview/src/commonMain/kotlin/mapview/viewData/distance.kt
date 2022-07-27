@@ -33,6 +33,7 @@ fun ViewData.getPixelDistance(target: Offset, feature: FeatureType, density: Den
 private fun ViewData.getSquaredDistance(target: Offset, feature: FeatureType) = when (feature) {
     is PointFeatureType -> getSquaredDistanceToPoint(target, feature)
     is RectFeatureType -> getSquaredDistanceToRect(target, feature)
+    is ScaledRectFeatureType -> getSquaredDistanceToScaledRect(target, feature)
     is LineFeatureType -> getSquaredDistanceToLine(target, feature)
 }
 
@@ -55,7 +56,13 @@ private fun ViewData.getSquaredDistanceToPoint(target: Offset, feature: PointFea
 }
 
 private fun ViewData.getSquaredDistanceToRect(target: Offset, feature: RectFeatureType): Float {
-    //TODO make is rect not point
+    //TODO make as rect not point
+    val offset = feature.position.toOffset()
+    return (target.x - offset.x).pow(2) + (target.y - offset.y).pow(2)
+}
+
+private fun ViewData.getSquaredDistanceToScaledRect(target: Offset, feature: ScaledRectFeatureType): Float {
+    //TODO make as SCALED rect not point
     val offset = feature.position.toOffset()
     return (target.x - offset.x).pow(2) + (target.y - offset.y).pow(2)
 }

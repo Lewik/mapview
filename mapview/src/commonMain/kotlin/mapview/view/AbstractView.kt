@@ -134,6 +134,16 @@ internal fun AbstractView(
                                 }
                             }
                         }
+                        is ScaledRectFeature -> {
+                            val size = feature.size.toSize() * scale.toFloat()
+                            val offset = feature.position.toOffset()
+                            drawRect(
+                                brush = feature.brush,
+                                topLeft = offset,
+                                size = size,
+                                style = feature.style
+                            )
+                        }
                         is ScaledImageFeature -> {
                             val size = feature.size.toSize() * scale.toFloat()
                             val offset = feature.position.toOffset()

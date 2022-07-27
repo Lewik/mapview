@@ -1,10 +1,9 @@
-import androidx.compose.foundation.layout.Box
-import androidx.compose.material.Text
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.useResource
@@ -80,6 +79,12 @@ fun main() = application {
                     position = SchemeCoordinates(50.0, -25.0),
                     radius = 2.dp,
                     color = Color.Black
+                ),
+                ScaledRectFeature(
+                    id = FeatureId("8"),
+                    position = SchemeCoordinates(50.0, -25.0),
+                    size = DpSize(20.dp, 20.dp),
+                    brush = SolidColor(Color.Blue)
                 )
             )
         )
