@@ -19,6 +19,11 @@ interface PointFeatureType : FeatureType {
     val position: SchemeCoordinates
 }
 
+interface RectFeatureType : FeatureType {
+    val position: SchemeCoordinates
+    val size: DpSize
+}
+
 interface LineFeatureType : FeatureType {
     val positionStart: SchemeCoordinates
     val positionEnd: SchemeCoordinates
@@ -64,20 +69,20 @@ class TextFeature(
 
 class ImageFeature(
     override val id: FeatureId,
-    val position: SchemeCoordinates,
+    override val position: SchemeCoordinates,
     val painter: Painter,
-    val size: DpSize,
-) : Feature() {
+    override val size: DpSize,
+) : Feature(), RectFeatureType {
     override fun getExtent() = Extent(position, position)
 }
 
 class ScaledImageFeature(
     override val id: FeatureId,
     //left top
-    val position: SchemeCoordinates,
+    override val position: SchemeCoordinates,
     val painter: Painter,
-    val size: DpSize,
-) : Feature() {
+    override val size: DpSize,
+) : Feature(), RectFeatureType {
     override fun getExtent(): Extent {
         //original size in dp is 1 to 1 as SchemeCoordinates
         return Extent(
