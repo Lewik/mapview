@@ -44,28 +44,32 @@ fun MapView(
         )
     }
     with(LocalDensity.current) {
-        val viewData by derivedStateOf { viewDataState.value } //TODO is it correct?
+        val viewData by remember { derivedStateOf { viewDataState.value } } //TODO is it correct?
         with(viewData) {
-            val scale by derivedStateOf { viewData.scale }
+            val scale by remember { derivedStateOf { viewData.scale } }
 
-            val zoom by derivedStateOf {
-                (minZoom..maxZoom).firstOrNull { zoom ->
-                    val totalTiles = 2.0.pow(zoom)
-                    val scaledMapSize = MapTileProvider.EQUATOR * scale
-                    val scaledTileSize = scaledMapSize / totalTiles
-                    scaledTileSize < tileSize.toPx()
-                } ?: maxZoom
+            val zoom by remember {
+                derivedStateOf {
+                    (minZoom..maxZoom).firstOrNull { zoom ->
+                        val totalTiles = 2.0.pow(zoom)
+                        val scaledMapSize = MapTileProvider.EQUATOR * scale
+                        val scaledTileSize = scaledMapSize / totalTiles
+                        scaledTileSize < tileSize.toPx()
+                    } ?: maxZoom
+                }
             }
-            val tileNum by derivedStateOf { 2.0.pow(zoom).toInt() }
-            val scaledTileSize by derivedStateOf { ceil(MapTileProvider.EQUATOR * scale / tileNum).toInt() }
+            val tileNum by remember(onDragEnd) { derivedStateOf { 2.0.pow(zoom).toInt() } }
+            val scaledTileSize by remember { derivedStateOf { ceil(MapTileProvider.EQUATOR * scale / tileNum).toInt() } }
 //        println("TEST zoom $zoom tileNum $tileNum tileSize $tileSize")
             val mapTiles = remember { mutableStateListOf<MapTile>() }
-            val tileSizeXY = derivedStateOf {
-                IntSize(
-                    width = scaledTileSize,
-                    height = scaledTileSize
-                )
+            val tileSizeXY = remember {
+                derivedStateOf {
+                    IntSize(
+                        width = scaledTileSize,
+                        height = scaledTileSize
+                    )
 
+                }
             }
             LaunchedEffect(viewData) {
                 val topLeft = Offset.Zero.toSchemeCoordinates()

@@ -2,12 +2,12 @@ package mapview.view
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -39,7 +39,7 @@ internal fun AbstractView(
     tileSizeXY: IntSize,
     mapTiles: SnapshotStateList<MapTile>,
 ) {
-    val viewData by derivedStateOf { viewDataState.value } //TODO is it correct?
+    val viewData by remember { derivedStateOf { viewDataState.value } } //TODO is it correct?
     with(viewData) {
 
         val canvasModifier = Modifier

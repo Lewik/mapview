@@ -43,92 +43,96 @@ fun main() = application {
     val draggableFeatureId = remember { mutableStateOf<FeatureId?>(null) }
 
 
-    val buildingFeatures = derivedStateOf {
-        with(density) {
-            buildings
+    val buildingFeatures = remember {
+        derivedStateOf {
+            with(density) {
+                buildings
+                    .values
+                    .filter { it.type != Building.Type.PILLAR }
+                    .sortedBy { it.type == Building.Type.SUB_STATION }
+                    .flatMap { building ->
+                        val featureId = FeatureId(building.id)
+                        val selected = featureId in selectedFeatureIds.value || featureId == draggableFeatureId.value
+                        val color = if (selected) ScadaColor.orange else ScadaColor.green
+                        val mercator = building.coordinates
+                        if (building.type == Building.Type.SUB_STATION) {
+                            listOf(
+                                CircleFeature(
+                                    id = FeatureId(building.id),
+                                    position = mercator.toSchemeCoordinates(),
+                                    radius = 16.dp,
+                                    color = Color.White,
+                                ),
+                                CircleFeature(
+                                    id = FeatureId(building.id + "2"),
+                                    position = mercator.toSchemeCoordinates(),
+                                    radius = 16.dp,
+                                    color = color,
+                                    style = Stroke(width = 2.dp.toPx())
+                                ),
+                                CircleFeature(
+                                    id = FeatureId(building.id + "3"),
+                                    position = mercator.toSchemeCoordinates(),
+                                    radius = 11.dp,
+                                    color = color,
+                                    style = Stroke(width = 2.dp.toPx())
+                                )
+                            )
+                        } else {
+                            listOf(
+                                CircleFeature(
+                                    id = FeatureId(building.id),
+                                    position = mercator.toSchemeCoordinates(),
+                                    radius = 3.dp,
+                                    color = color
+                                )
+                            )
+                        }
+                    }
+            }
+        }
+    }
+    val lineFeatures = remember {
+        derivedStateOf {
+            val connectionCoordinates = buildings
                 .values
-                .filter { it.type != Building.Type.PILLAR }
-                .sortedBy { it.type == Building.Type.SUB_STATION }
-                .flatMap { building ->
-                    val featureId = FeatureId(building.id)
+                .flatMap { building -> building.deviceList.flatMap { device -> device.connections.map { it to building.coordinates } } }
+                .associate { it.first to it.second.toSchemeCoordinates() }
+
+            lines
+                .values
+                .map { line ->
+                    val featureId = FeatureId(line.id)
                     val selected = featureId in selectedFeatureIds.value || featureId == draggableFeatureId.value
                     val color = if (selected) ScadaColor.orange else ScadaColor.green
-                    val mercator = building.coordinates
-                    if (building.type == Building.Type.SUB_STATION) {
-                        listOf(
-                            CircleFeature(
-                                id = FeatureId(building.id),
-                                position = mercator.toSchemeCoordinates(),
-                                radius = 16.dp,
-                                color = Color.White,
-                            ),
-                            CircleFeature(
-                                id = FeatureId(building.id + "2"),
-                                position = mercator.toSchemeCoordinates(),
-                                radius = 16.dp,
-                                color = color,
-                                style = Stroke(width = 2.dp.toPx())
-                            ),
-                            CircleFeature(
-                                id = FeatureId(building.id + "3"),
-                                position = mercator.toSchemeCoordinates(),
-                                radius = 11.dp,
-                                color = color,
-                                style = Stroke(width = 2.dp.toPx())
-                            )
-                        )
-                    } else {
-                        listOf(
-                            CircleFeature(
-                                id = FeatureId(building.id),
-                                position = mercator.toSchemeCoordinates(),
-                                radius = 3.dp,
-                                color = color
-                            )
-                        )
-                    }
+                    val width = if (selected) 4.dp else 2.dp
+                    LineFeature(
+                        id = featureId,
+                        positionStart = connectionCoordinates.getValue(line.connections[0]),
+                        positionEnd = connectionCoordinates.getValue(line.connections[1]),
+                        color = color,
+                        width = width,
+                        cap = StrokeCap.Round,
+                    )
                 }
         }
     }
+    val features = remember { derivedStateOf { lineFeatures.value + buildingFeatures.value } }
 
-    val lineFeatures = derivedStateOf {
-        val connectionCoordinates = buildings
-            .values
-            .flatMap { building -> building.deviceList.flatMap { device -> device.connections.map { it to building.coordinates } } }
-            .associate { it.first to it.second.toSchemeCoordinates() }
-
-        lines
-            .values
-            .map { line ->
-                val featureId = FeatureId(line.id)
-                val selected = featureId in selectedFeatureIds.value || featureId == draggableFeatureId.value
-                val color = if (selected) ScadaColor.orange else ScadaColor.green
-                val width = if (selected) 4.dp else 2.dp
-                LineFeature(
-                    id = featureId,
-                    positionStart = connectionCoordinates.getValue(line.connections[0]),
-                    positionEnd = connectionCoordinates.getValue(line.connections[1]),
-                    color = color,
-                    width = width,
-                    cap = StrokeCap.Round,
-                )
-            }
+    val focusUnderAfrica = remember {
+        SchemeCoordinates(
+            x = 0.0,
+            y = 0.0,
+        )
     }
-
-    val features = derivedStateOf { lineFeatures.value + buildingFeatures.value }
-
-    val focusUnderAfrica = SchemeCoordinates(
-        x = 0.0,
-        y = 0.0,
-    )
-
-    val focusMoscow = SchemeCoordinates(
-        x = 4187378.060833,
-        y = 7508930.173748,
-    )
-
+    val focusMoscow = remember {
+        SchemeCoordinates(
+            x = 4187378.060833,
+            y = 7508930.173748,
+        )
+    }
     val initialFocus = focusMoscow // SchemeCoordinates(50.0, -25.0)//focusMoscow focusUnderAfrica
-    val initialScale = 2.0.pow(1)
+    val initialScale = remember { 2.0.pow(1) }
 
 
     val viewData = remember {

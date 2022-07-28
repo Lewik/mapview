@@ -42,47 +42,48 @@ fun main() = application {
 //            flag.value = !flag.value
 //        }
 //    }
-    val features = derivedStateOf {
-        listOf(
-            CircleFeature(
-                id = FeatureId("1"),
-                position = focus,
-                radius = 3.dp,
-                color = Color.Red
-            ),
-            TextFeature(
-                id = FeatureId("2"),
-                position = focus,
-                text = "Test Тест",
-                color = Color.Red
-            ),
-        )
-            //90k features
-            .plus((1..300).flatMap { y ->
-                (1..300).map { x ->
-                    CircleFeature(
-                        id = FeatureId("generated $x-$y ${flag.value}"),
-                        position = SchemeCoordinates(focus.x + x * 2, focus.y + y * 2),
-                        radius = 2.dp,
-                        color = listOf(
-                            Color.Black,
-                            Color.DarkGray,
-                            Color.Gray,
-                            Color.LightGray,
-                            Color.White,
-                            Color.Red,
-                            Color.Green,
-                            Color.Blue,
-                            Color.Yellow,
-                            Color.Cyan,
-                            Color.Magenta,
-                        ).random()
-                    )
-                }
-            }
+    val features = remember {
+        derivedStateOf {
+            listOf(
+                CircleFeature(
+                    id = FeatureId("1"),
+                    position = focus,
+                    radius = 3.dp,
+                    color = Color.Red
+                ),
+                TextFeature(
+                    id = FeatureId("2"),
+                    position = focus,
+                    text = "Test Тест",
+                    color = Color.Red
+                ),
             )
+                //90k features
+                .plus((1..300).flatMap { y ->
+                    (1..300).map { x ->
+                        CircleFeature(
+                            id = FeatureId("generated $x-$y ${flag.value}"),
+                            position = SchemeCoordinates(focus.x + x * 2, focus.y + y * 2),
+                            radius = 2.dp,
+                            color = listOf(
+                                Color.Black,
+                                Color.DarkGray,
+                                Color.Gray,
+                                Color.LightGray,
+                                Color.White,
+                                Color.Red,
+                                Color.Green,
+                                Color.Blue,
+                                Color.Yellow,
+                                Color.Cyan,
+                                Color.Magenta,
+                            ).random()
+                        )
+                    }
+                }
+                )
+        }
     }
-
     val viewData = remember {
         mutableStateOf(
             ViewData(
