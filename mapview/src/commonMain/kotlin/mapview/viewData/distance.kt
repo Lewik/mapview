@@ -17,10 +17,9 @@ fun <T> getClosestFeaturesIds(
     features: List<T>,
     offset: Offset,
     hitTolerance: Dp,
-//): List<FeatureId> where T : Feature, T : FeatureType {
-): List<FeatureId> where T : Feature {
+): List<FeatureId> where T : Feature, T : FeatureType {
     val hitToleranceSquared = with(density) { hitTolerance.toPx().pow(2) }
-    return features.map { it.id to viewData.getSquaredDistance(offset, it as FeatureType) }
+    return features.map { it.id to viewData.getSquaredDistance(offset, it) }
         .filter { it.second < hitToleranceSquared }
         .sortedBy { it.second }
         .map { it.first }

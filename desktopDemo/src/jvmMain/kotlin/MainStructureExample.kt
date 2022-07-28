@@ -1,5 +1,7 @@
-import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.toMutableStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -118,10 +120,10 @@ fun main() = application {
                 }
         }
     }
-    val features: SnapshotStateList<Feature> = remember(lineFeatures.value, buildingFeatures.value) {
-        lineFeatures.value
-            .plus(buildingFeatures.value)
-            .toMutableStateList()
+    val features = remember {
+        derivedStateOf {
+            lineFeatures.value + buildingFeatures.value
+        }
     }
 
     val focusUnderAfrica = remember {
@@ -147,9 +149,9 @@ fun main() = application {
                 scale = initialScale,
                 size = Size(800f, 600f),
                 showDebug = false,
-            ).zoomToFeatures(features)
+            ).zoomToFeatures(features.value)
         )
-        state.value = state.value.zoomToFeatures(features)
+        state.value = state.value.zoomToFeatures(features.value)
         state
     }
 
@@ -190,7 +192,7 @@ fun main() = application {
                 val target = getClosestFeaturesIds(
                     density = density,
                     viewData = viewData.value,
-                    features = features.filter { it is PointFeatureType },
+                    features = features.value.filter { it is PointFeatureType },
                     offset = offset,
                     hitTolerance = dragHitTolerance
                 )
@@ -229,7 +231,7 @@ fun main() = application {
                     val selected = getClosestFeaturesIds(
                         density = density,
                         viewData = viewData.value,
-                        features = features,
+                        features = features.value,
                         offset = offset,
                         hitTolerance = selectHitTolerance
                     )

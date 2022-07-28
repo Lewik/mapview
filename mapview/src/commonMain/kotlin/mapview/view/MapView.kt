@@ -1,7 +1,6 @@
 package mapview.view
 
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -28,7 +27,7 @@ fun MapView(
     maxZoom: Int = 18,
     tileSize: Dp = 256.dp,
     inmemoryTileCacheAmount: Int = 500,
-    features: SnapshotStateList<Feature>,
+    features: State<List<Feature>>,
     viewData: State<ViewData>,
     onDragStart: (offset: Offset) -> Unit = {},
     onDrag: (dragAmount: Offset) -> Unit = {},

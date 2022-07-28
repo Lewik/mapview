@@ -27,7 +27,7 @@ import mapview.viewData.ViewData
 
 @Composable
 internal fun AbstractView(
-    features: SnapshotStateList<Feature>,
+    features: State<List<Feature>>,
     viewData: State<ViewData>,
     onDragStart: (offset: Offset) -> Unit = {},
     onDrag: (dragAmount: Offset) -> Unit = {},
@@ -104,7 +104,7 @@ internal fun AbstractView(
                             }
                         }
                     }
-                    features.forEach { feature ->
+                    features.value.forEach { feature ->
                         when (feature) {
                             is CircleFeature -> drawCircle(
                                 color = feature.color,
