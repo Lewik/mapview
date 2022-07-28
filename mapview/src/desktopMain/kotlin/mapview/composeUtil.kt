@@ -18,7 +18,7 @@ actual fun NativeCanvas.drawText1(
     paint: androidx.compose.ui.graphics.Paint,
 ) {
 
-    val textLine = TextLine.make(string, Font().apply { size = 16f })
+    val textLine = TextLine.make(string, Font().apply { size = fontSize })
     drawTextLine(
         line = textLine,
         x = x,

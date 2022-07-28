@@ -45,43 +45,53 @@ fun main() = application {
 //    }
     val features = remember {
         derivedStateOf {
-            listOf(
-                CircleFeature(
-                    id = FeatureId("1"),
-                    position = initialFocus,
-                    radius = 3.dp,
-                    color = Color.Red
-                ),
-                TextFeature(
-                    id = FeatureId("2"),
-                    position = initialFocus,
-                    text = "Test Тест",
-                    color = Color.Red
-                ),
-            )
-                //90k features
-                .plus((1..300).flatMap { y ->
-                    (1..300).map { x ->
-                        CircleFeature(
-                            id = FeatureId("generated $x-$y ${flag.value}"),
-                            position = SchemeCoordinates(initialFocus.x + x * 2, initialFocus.y + y * 2),
-                            radius = 2.dp,
-                            color = listOf(
-                                Color.Black,
-                                Color.DarkGray,
-                                Color.Gray,
-                                Color.LightGray,
-                                Color.White,
-                                Color.Red,
-                                Color.Green,
-                                Color.Blue,
-                                Color.Yellow,
-                                Color.Cyan,
-                                Color.Magenta,
-                            ).random()
-                        )
-                    }
+            //90k features
+
+            (1..300).flatMap { y ->
+                (1..300).map { x ->
+                    CircleFeature(
+                        id = FeatureId("generated $x-$y ${flag.value}"),
+                        position = SchemeCoordinates(initialFocus.x + x * 2, initialFocus.y + y * 2),
+                        radius = 2.dp,
+                        color = listOf(
+                            Color.Black,
+                            Color.DarkGray,
+                            Color.Gray,
+                            Color.LightGray,
+                            Color.White,
+                            Color.Red,
+                            Color.Green,
+                            Color.Blue,
+                            Color.Yellow,
+                            Color.Cyan,
+                            Color.Magenta,
+                        ).random()
+                    )
                 }
+            }
+                .plus(
+                    listOf(
+                        CircleFeature(
+                            id = FeatureId("1"),
+                            position = initialFocus,
+                            radius = 3.dp,
+                            color = Color.Red
+                        ),
+                        TextFeature(
+                            id = FeatureId("2"),
+                            position = initialFocus,
+                            text = "Big test",
+                            color = Color.Black,
+                            fontSize = 64.dp
+                        ),
+                        TextFeature(
+                            id = FeatureId("2"),
+                            position = initialFocus,
+                            text = "Test Тест",
+                            color = Color.Red,
+                            fontSize = 16.dp
+                        ),
+                    )
                 )
 
         }

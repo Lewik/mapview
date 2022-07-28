@@ -89,6 +89,7 @@ class TextFeature(
     override val position: SchemeCoordinates,
     val text: String,
     val color: Color,
+    val fontSize: Dp,
 ) : Feature(), PointFeatureType
 
 class ImageFeature(

@@ -158,7 +158,7 @@ internal fun AbstractView(
                                     string = feature.text,
                                     x = offset.x + 5,
                                     y = offset.y - 5,
-                                    fontSize = 16f,
+                                    fontSize = feature.fontSize.toPx(),
                                     paint = Paint().apply { color = feature.color }
                                 )
                             }
