@@ -15,9 +15,9 @@ import kotlin.math.min
  */
 data class ViewData(
     val size: Size,
-    val focus: SchemeCoordinates,
-    val scale: Double,
-    val showDebug: Boolean,
+    val focus: SchemeCoordinates = SchemeCoordinates(.0, .0),
+    val scale: Double = 1.0,
+    val showDebug: Boolean = false,
     val minScale: Double? = null,
     val maxScale: Double? = Double.MAX_VALUE,
 ) {

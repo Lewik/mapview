@@ -2,10 +2,7 @@ package mapview.view
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -45,7 +42,7 @@ internal fun AbstractView(
     val viewData by derivedStateOf { viewDataState.value } //TODO is it correct?
     with(viewData) {
 
-        val canvasModifier = modifier
+        val canvasModifier = Modifier
             .canvasGestures(
                 onDragStart = onDragStart,
                 onDrag = onDrag,
@@ -53,140 +50,139 @@ internal fun AbstractView(
                 onDragCancel = onDragCancel,
                 onScroll = onScroll,
                 onClick = onClick
-            )
-            .fillMaxSize()
+            ).then(modifier)
 
-
-        Canvas(canvasModifier) {
-            if (viewData.size != size) {
-                onResize(size)
-            }
-            clipRect {
-                mapTiles.forEach { mapTile ->
-                    val offset = mapTile.id
-                        .toSchemaCoordinates()
-                        .toOffset()
-                    val intOffset = offset
-                        .round()
+        Box(canvasModifier) {
+            Canvas(Modifier.fillMaxSize()) {
+                if (viewData.size != size) {
+                    onResize(size)
+                }
+                clipRect {
+                    mapTiles.forEach { mapTile ->
+                        val offset = mapTile.id
+                            .toSchemaCoordinates()
+                            .toOffset()
+                        val intOffset = offset
+                            .round()
 //                        println("tile $tileId tileNum $tileNum int offset $offset, tileSizeXY $tileSizeXY")
-                    drawImage(
-                        image = mapTile.image,
-                        srcOffset = IntOffset(mapTile.offsetX, mapTile.offsetY),
-                        srcSize = IntSize(mapTile.cropSize, mapTile.cropSize),
-                        dstOffset = intOffset,
-                        dstSize = tileSizeXY
-                    )
-                    if (viewData.showDebug) {
-                        drawRect(
-                            color = androidx.compose.ui.graphics.Color.Red,
-                            topLeft = intOffset.toOffset(),
-                            size = tileSizeXY.toSize(),
-                            style = Stroke(width = 1f)
+                        drawImage(
+                            image = mapTile.image,
+                            srcOffset = IntOffset(mapTile.offsetX, mapTile.offsetY),
+                            srcSize = IntSize(mapTile.cropSize, mapTile.cropSize),
+                            dstOffset = intOffset,
+                            dstSize = tileSizeXY
                         )
-                        drawIntoCanvas {
-                            it.nativeCanvas.drawText1(
-                                string = "x: ${mapTile.id.x}",
-                                x = offset.x + 20.dp.toPx(),
-                                y = offset.y + 20.dp.toPx(),
-                                fontSize = 10.dp.toPx(),
-                                paint = Paint().apply { color = androidx.compose.ui.graphics.Color.Red }
+                        if (viewData.showDebug) {
+                            drawRect(
+                                color = androidx.compose.ui.graphics.Color.Red,
+                                topLeft = intOffset.toOffset(),
+                                size = tileSizeXY.toSize(),
+                                style = Stroke(width = 1f)
                             )
-                            it.nativeCanvas.drawText1(
-                                string = "y: ${mapTile.id.y}",
-                                x = offset.x + 20.dp.toPx(),
-                                y = offset.y + 40.dp.toPx(),
-                                fontSize = 10.dp.toPx(),
-                                paint = Paint().apply { color = androidx.compose.ui.graphics.Color.Red }
-                            )
-                            it.nativeCanvas.drawText1(
-                                string = "zoom: ${mapTile.id.zoom}",
-                                x = offset.x + 20.dp.toPx(),
-                                y = offset.y + 60.dp.toPx(),
-                                fontSize = 10.dp.toPx(),
-                                paint = Paint().apply { color = androidx.compose.ui.graphics.Color.Red }
-                            )
+                            drawIntoCanvas {
+                                it.nativeCanvas.drawText1(
+                                    string = "x: ${mapTile.id.x}",
+                                    x = offset.x + 20.dp.toPx(),
+                                    y = offset.y + 20.dp.toPx(),
+                                    fontSize = 10.dp.toPx(),
+                                    paint = Paint().apply { color = androidx.compose.ui.graphics.Color.Red }
+                                )
+                                it.nativeCanvas.drawText1(
+                                    string = "y: ${mapTile.id.y}",
+                                    x = offset.x + 20.dp.toPx(),
+                                    y = offset.y + 40.dp.toPx(),
+                                    fontSize = 10.dp.toPx(),
+                                    paint = Paint().apply { color = androidx.compose.ui.graphics.Color.Red }
+                                )
+                                it.nativeCanvas.drawText1(
+                                    string = "zoom: ${mapTile.id.zoom}",
+                                    x = offset.x + 20.dp.toPx(),
+                                    y = offset.y + 60.dp.toPx(),
+                                    fontSize = 10.dp.toPx(),
+                                    paint = Paint().apply { color = androidx.compose.ui.graphics.Color.Red }
+                                )
+                            }
                         }
                     }
-                }
-                features.forEach { feature ->
-                    when (feature) {
-                        is CircleFeature -> drawCircle(
-                            color = feature.color,
-                            radius = feature.radius.toPx(),
-                            center = feature.position.toOffset(),
-                            style = feature.style,
-                        )
-                        is LineFeature -> drawLine(
-                            color = feature.color,
-                            start = feature.positionStart.toOffset(),
-                            end = feature.positionEnd.toOffset(),
-                            strokeWidth = feature.width.toPx(),
-                            cap = feature.cap
-                        )
-                        is ImageFeature -> {
-                            val offset = feature.position.toOffset()
-                            translate(
-                                left = offset.x,
-                                top = offset.y
-                            ) {
-                                with(feature.painter) {
-                                    draw(size = feature.size.toSize())
+                    features.forEach { feature ->
+                        when (feature) {
+                            is CircleFeature -> drawCircle(
+                                color = feature.color,
+                                radius = feature.radius.toPx(),
+                                center = feature.position.toOffset(),
+                                style = feature.style,
+                            )
+                            is LineFeature -> drawLine(
+                                color = feature.color,
+                                start = feature.positionStart.toOffset(),
+                                end = feature.positionEnd.toOffset(),
+                                strokeWidth = feature.width.toPx(),
+                                cap = feature.cap
+                            )
+                            is ImageFeature -> {
+                                val offset = feature.position.toOffset()
+                                translate(
+                                    left = offset.x,
+                                    top = offset.y
+                                ) {
+                                    with(feature.painter) {
+                                        draw(size = feature.size.toSize())
+                                    }
                                 }
                             }
-                        }
-                        is ScaledRectFeature -> {
-                            val size = feature.size.toSize() * scale.toFloat()
-                            val offset = feature.position.toOffset()
-                            drawRect(
-                                brush = feature.brush,
-                                topLeft = offset,
-                                size = size,
-                                style = feature.style
-                            )
-                        }
-                        is ScaledImageFeature -> {
-                            val size = feature.size.toSize() * scale.toFloat()
-                            val offset = feature.position.toOffset()
-                            translate(
-                                left = offset.x,
-                                top = offset.y
-                            ) {
-                                with(feature.painter) {
-                                    draw(size = size)
+                            is ScaledRectFeature -> {
+                                val size = feature.size.toSize() * scale.toFloat()
+                                val offset = feature.position.toOffset()
+                                drawRect(
+                                    brush = feature.brush,
+                                    topLeft = offset,
+                                    size = size,
+                                    style = feature.style
+                                )
+                            }
+                            is ScaledImageFeature -> {
+                                val size = feature.size.toSize() * scale.toFloat()
+                                val offset = feature.position.toOffset()
+                                translate(
+                                    left = offset.x,
+                                    top = offset.y
+                                ) {
+                                    with(feature.painter) {
+                                        draw(size = size)
+                                    }
                                 }
                             }
-                        }
-                        is TextFeature -> drawIntoCanvas { canvas ->
-                            val offset = feature.position.toOffset()
-                            canvas.nativeCanvas.drawText1(
-                                string = feature.text,
-                                x = offset.x + 5,
-                                y = offset.y - 5,
-                                fontSize = 16f,
-                                paint = Paint().apply { color = feature.color }
-                            )
-                        }
-                    }.exhaustive()
+                            is TextFeature -> drawIntoCanvas { canvas ->
+                                val offset = feature.position.toOffset()
+                                canvas.nativeCanvas.drawText1(
+                                    string = feature.text,
+                                    x = offset.x + 5,
+                                    y = offset.y - 5,
+                                    fontSize = 16f,
+                                    paint = Paint().apply { color = feature.color }
+                                )
+                            }
+                        }.exhaustive()
+
+                    }
+                    if (viewData.showDebug) {
+                        drawLine(
+                            color = androidx.compose.ui.graphics.Color.DarkGray,
+                            start = Offset(size.width / 2, 0f),
+                            end = Offset(size.width / 2, size.height)
+                        )
+                        drawLine(
+                            color = androidx.compose.ui.graphics.Color.DarkGray,
+                            start = Offset(0f, size.height / 2),
+                            end = Offset(size.width, size.height / 2)
+                        )
+                    }
 
                 }
-                if (viewData.showDebug) {
-                    drawLine(
-                        color = androidx.compose.ui.graphics.Color.DarkGray,
-                        start = Offset(size.width / 2, 0f),
-                        end = Offset(size.width / 2, size.height)
-                    )
-                    drawLine(
-                        color = androidx.compose.ui.graphics.Color.DarkGray,
-                        start = Offset(0f, size.height / 2),
-                        end = Offset(size.width, size.height / 2)
-                    )
-                }
-
             }
-        }
 
-        if (viewData.showDebug) {
-            Box {
+            if (viewData.showDebug) {
+
                 Column(
                     modifier = androidx.compose.ui.Modifier
                         .background(color = androidx.compose.ui.graphics.Color.White.copy(alpha = .5f))
