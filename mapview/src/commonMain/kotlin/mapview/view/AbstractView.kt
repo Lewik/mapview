@@ -7,7 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -26,8 +27,8 @@ import mapview.viewData.ViewData
 
 @Composable
 internal fun AbstractView(
-    features: List<Feature>,
-    viewDataState: State<ViewData>,
+    features: SnapshotStateList<Feature>,
+    viewData: State<ViewData>,
     onDragStart: (offset: Offset) -> Unit = {},
     onDrag: (dragAmount: Offset) -> Unit = {},
     onDragEnd: () -> Unit = {},
@@ -39,9 +40,8 @@ internal fun AbstractView(
     tileSizeXY: IntSize,
     mapTiles: SnapshotStateList<MapTile>,
 ) {
-    val viewData by remember { derivedStateOf { viewDataState.value } } //TODO is it correct?
-    with(viewData) {
-
+//    val viewData by remember { derivedStateOf { viewData.value } } //TODO is it correct?
+    with(viewData.value) {
         val canvasModifier = Modifier
             .canvasGestures(
                 onDragStart = onDragStart,
@@ -54,7 +54,7 @@ internal fun AbstractView(
 
         Box(canvasModifier) {
             Canvas(Modifier.fillMaxSize()) {
-                if (viewData.size != size) {
+                if (viewData.value.size != size) {
                     onResize(size)
                 }
                 clipRect {
@@ -72,7 +72,7 @@ internal fun AbstractView(
                             dstOffset = intOffset,
                             dstSize = tileSizeXY
                         )
-                        if (viewData.showDebug) {
+                        if (viewData.value.showDebug) {
                             drawRect(
                                 color = androidx.compose.ui.graphics.Color.Red,
                                 topLeft = intOffset.toOffset(),
@@ -165,7 +165,7 @@ internal fun AbstractView(
                         }.exhaustive()
 
                     }
-                    if (viewData.showDebug) {
+                    if (viewData.value.showDebug) {
                         drawLine(
                             color = androidx.compose.ui.graphics.Color.DarkGray,
                             start = Offset(size.width / 2, 0f),
@@ -181,20 +181,20 @@ internal fun AbstractView(
                 }
             }
 
-            if (viewData.showDebug) {
+            if (viewData.value.showDebug) {
 
                 Column(
                     modifier = androidx.compose.ui.Modifier
                         .background(color = androidx.compose.ui.graphics.Color.White.copy(alpha = .5f))
                         .padding(10.dp)
                 ) {
-                    Text("Focus: x: ${viewData.focus.x}, y: ${viewData.focus.x}")
-                    Text("Scale: ${viewData.scale}, min: ${viewData.getMinScaleCoerce()}, max: ${viewData.maxScale}")
+                    Text("Focus: x: ${viewData.value.focus.x}, y: ${viewData.value.focus.x}")
+                    Text("Scale: ${viewData.value.scale}, min: ${viewData.value.getMinScaleCoerce()}, max: ${viewData.value.maxScale}")
                     if (mapTiles.isNotEmpty()) {
                         val zoom = mapTiles.firstOrNull()?.id?.zoom
                         Text("Zoom: $zoom")
                     }
-                    Text("Size: width:${viewData.size.width}, height: ${viewData.size.height}")
+                    Text("Size: width:${viewData.value.size.width}, height: ${viewData.value.size.height}")
                 }
             }
         }

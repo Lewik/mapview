@@ -1,4 +1,5 @@
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -117,7 +118,11 @@ fun main() = application {
                 }
         }
     }
-    val features = remember { derivedStateOf { lineFeatures.value + buildingFeatures.value } }
+    val features: SnapshotStateList<Feature> = remember(lineFeatures.value, buildingFeatures.value) {
+        lineFeatures.value
+            .plus(buildingFeatures.value)
+            .toMutableStateList()
+    }
 
     val focusUnderAfrica = remember {
         SchemeCoordinates(
@@ -142,14 +147,14 @@ fun main() = application {
                 scale = initialScale,
                 size = Size(800f, 600f),
                 showDebug = false,
-            ).zoomToFeatures(features.value)
+            ).zoomToFeatures(features)
         )
-        state.value = state.value.zoomToFeatures(features.value)
+        state.value = state.value.zoomToFeatures(features)
         state
     }
 
 
-    val mapTileProvider by remember {
+    val mapTileProvider = remember {
         val client = HttpClient(CIO) {
             engine {
                 https {
@@ -179,13 +184,13 @@ fun main() = application {
     ) {
         MapView(
             mapTileProvider = mapTileProvider,
-            features = features.value,
-            onScroll = viewData::addScale,
+            features = features,
+            onScroll = { scaleDelta, target -> viewData.addScale(scaleDelta, target) },
             onDragStart = { offset ->
                 val target = getClosestFeaturesIds(
                     density = density,
                     viewData = viewData.value,
-                    features = features.value.filter { it is PointFeatureType },
+                    features = features.filter { it is PointFeatureType },
                     offset = offset,
                     hitTolerance = dragHitTolerance
                 )
@@ -217,14 +222,14 @@ fun main() = application {
                 }
             },
             onDragEnd = { draggableFeatureId.value = null },
-            onResize = viewData::resize,
-            viewDataState = viewData,
+            onResize = { viewData.resize(it) },
+            viewData = viewData,
             onClick = { offset ->
                 with(viewData.value) {
                     val selected = getClosestFeaturesIds(
                         density = density,
                         viewData = viewData.value,
-                        features = features.value,
+                        features = features,
                         offset = offset,
                         hitTolerance = selectHitTolerance
                     )

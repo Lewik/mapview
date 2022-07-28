@@ -3,6 +3,7 @@ package mapview.view
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -13,8 +14,8 @@ import mapview.viewData.ViewData
 
 @Composable
 fun SchemeView(
-    features: List<Feature>,
-    viewDataState: State<ViewData>,
+    features: SnapshotStateList<Feature>,
+    viewData: State<ViewData>,
     onDragStart: (offset: Offset) -> Unit = {},
     onDrag: (dragAmount: Offset) -> Unit = {},
     onDragEnd: () -> Unit = {},
@@ -25,7 +26,7 @@ fun SchemeView(
     modifier: Modifier = Modifier,
 ) = AbstractView(
     features = features,
-    viewDataState = viewDataState,
+    viewData = viewData,
     onDragStart = onDragStart,
     onDrag = onDrag,
     onDragEnd = onDragEnd,

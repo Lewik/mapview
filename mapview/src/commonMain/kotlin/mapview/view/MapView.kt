@@ -1,6 +1,7 @@
 package mapview.view
 
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -22,13 +23,13 @@ private fun IntRange.intersect(other: IntRange) = max(first, other.first)..min(l
 
 @Composable
 fun MapView(
-    mapTileProvider: MapTileProvider,
+    mapTileProvider: State<MapTileProvider>,
     minZoom: Int = 1,
     maxZoom: Int = 18,
     tileSize: Dp = 256.dp,
     inmemoryTileCacheAmount: Int = 500,
-    features: List<Feature>,
-    viewDataState: State<ViewData>,
+    features: SnapshotStateList<Feature>,
+    viewData: State<ViewData>,
     onDragStart: (offset: Offset) -> Unit = {},
     onDrag: (dragAmount: Offset) -> Unit = {},
     onDragEnd: () -> Unit = {},
@@ -39,27 +40,33 @@ fun MapView(
     modifier: Modifier = Modifier,
 ) {
     val tileCache by remember {
-        mutableStateOf(
+        mutableStateOf(//state лишний?
             LruCache<TileId, MapTile>(inmemoryTileCacheAmount)
         )
     }
-    with(LocalDensity.current) {
-        val viewData by remember { derivedStateOf { viewDataState.value } } //TODO is it correct?
-        with(viewData) {
-            val scale by remember { derivedStateOf { viewData.scale } }
 
+    with(LocalDensity.current) {
+        with(viewData.value) {
             val zoom by remember {
                 derivedStateOf {
                     (minZoom..maxZoom).firstOrNull { zoom ->
                         val totalTiles = 2.0.pow(zoom)
-                        val scaledMapSize = MapTileProvider.EQUATOR * scale
+                        val scaledMapSize = MapTileProvider.EQUATOR * viewData.value.scale
                         val scaledTileSize = scaledMapSize / totalTiles
                         scaledTileSize < tileSize.toPx()
                     } ?: maxZoom
                 }
             }
-            val tileNum by remember(onDragEnd) { derivedStateOf { 2.0.pow(zoom).toInt() } }
-            val scaledTileSize by remember { derivedStateOf { ceil(MapTileProvider.EQUATOR * scale / tileNum).toInt() } }
+            val tileNum by remember {
+                derivedStateOf {
+                    2.0.pow(zoom).toInt()
+                }
+            }
+            val scaledTileSize by remember {
+                derivedStateOf {
+                    ceil(MapTileProvider.EQUATOR * viewData.value.scale / tileNum).toInt()
+                }
+            }
 //        println("TEST zoom $zoom tileNum $tileNum tileSize $tileSize")
             val mapTiles = remember { mutableStateListOf<MapTile>() }
             val tileSizeXY = remember {
@@ -68,10 +75,9 @@ fun MapView(
                         width = scaledTileSize,
                         height = scaledTileSize
                     )
-
                 }
             }
-            LaunchedEffect(viewData) {
+            LaunchedEffect(viewData.value) {
                 val topLeft = Offset.Zero.toSchemeCoordinates()
 
 //                    val range = -MapTileProvider.EQUATOR / 2..MapTileProvider.EQUATOR / 2
@@ -117,7 +123,7 @@ fun MapView(
 //                            }
                             launch {
                                 try {
-                                    val loadedTile = mapTileProvider.loadTile(tileId)
+                                    val loadedTile = mapTileProvider.value.loadTile(tileId)
                                     val tile = if (loadedTile != null) {
                                         tileCache[tileId] = loadedTile
                                         loadedTile
@@ -142,7 +148,7 @@ fun MapView(
 
             AbstractView(
                 features = features,
-                viewDataState = viewDataState,
+                viewData = viewData,
                 onDragStart = onDragStart,
                 onDrag = onDrag,
                 onDragEnd = onDragEnd,
