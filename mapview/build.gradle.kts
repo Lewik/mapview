@@ -11,10 +11,7 @@ group = "com.github.lewik"
 version = "0.0.1"
 
 
-val ktorCore = "io.ktor:ktor-client-core:$KTOR_VERSION"
-val ktorCIO = "io.ktor:ktor-client-cio:$KTOR_VERSION"
-val ktorIos = "io.ktor:ktor-client-ios:$KTOR_VERSION"
-val ktorOkHttp = "io.ktor:ktor-client-okhttp:$KTOR_VERSION"
+
 
 kotlin {
     android()
@@ -40,8 +37,6 @@ kotlin {
             dependencies {
                 api("androidx.appcompat:appcompat:1.2.0")
                 api("androidx.core:core-ktx:1.3.1")
-                implementation(ktorOkHttp)
-                implementation(ktorCIO)
             }
         }
         val androidTest by getting {
@@ -51,7 +46,6 @@ kotlin {
         }
         val desktopMain by getting {
             dependencies {
-                implementation(ktorCIO)
                 api(compose.preview)
             }
         }

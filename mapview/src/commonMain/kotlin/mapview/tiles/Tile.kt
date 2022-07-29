@@ -1,8 +1,9 @@
 package mapview.tiles
 
-import androidx.compose.ui.graphics.ImageBitmap
 import mapview.SchemeCoordinates
 import kotlin.math.pow
+
+internal const val EQUATOR = 40075016.68557849 //TODO move to coordinates transformation
 
 data class TileId(
     val zoom: Int,
@@ -16,25 +17,8 @@ fun TileId.coerceInTileRange(tileRange: IntRange) = copy(
 )
 
 
-data class MapTile(
-    val id: TileId,
-    val image: ImageBitmap,
-    val cropSize: Int,
-    val offsetX: Int,
-    val offsetY: Int,
-) {
-    companion object {
-        const val EQUATOR = 40075016.68557849
-    }
-}
-
-interface MapTileProvider {
-    suspend fun loadTile(tileId: TileId): MapTile?
-}
-
-
 fun SchemeCoordinates.toTileId(zoom: Int): TileId {
-    val equator = MapTile.EQUATOR
+    val equator = EQUATOR
     val tileNum = 2.0.pow(zoom)
     val tileX = ((x + (equator / 2.0)) * tileNum / equator).toInt()
     val tileY = (-(y - (equator / 2.0)) * tileNum / equator).toInt()
@@ -42,7 +26,7 @@ fun SchemeCoordinates.toTileId(zoom: Int): TileId {
 }
 
 fun TileId.toSchemaCoordinates(): SchemeCoordinates {
-    val equator = MapTile.EQUATOR
+    val equator = EQUATOR
     val tileNum = 2.0.pow(zoom)
     val x = x * equator / tileNum - equator / 2.0
     val y = -(y * equator / tileNum) + equator / 2.0

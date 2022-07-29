@@ -50,7 +50,7 @@ fun MapView(
                 derivedStateOf {
                     (minZoom..maxZoom).firstOrNull { zoom ->
                         val totalTiles = 2.0.pow(zoom)
-                        val scaledMapSize = MapTile.EQUATOR * viewData.value.scale
+                        val scaledMapSize = EQUATOR * viewData.value.scale
                         val scaledTileSize = scaledMapSize / totalTiles
                         scaledTileSize < tileSize.toPx()
                     } ?: maxZoom
@@ -63,7 +63,7 @@ fun MapView(
             }
             val scaledTileSize by remember {
                 derivedStateOf {
-                    ceil(MapTile.EQUATOR * viewData.value.scale / tileNum).toInt()
+                    ceil(EQUATOR * viewData.value.scale / tileNum).toInt()
                 }
             }
 //        println("TEST zoom $zoom tileNum $tileNum tileSize $tileSize")

@@ -9,11 +9,11 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
-import mapview.CircleFeature
-import mapview.FeatureId
-import mapview.SchemeCoordinates
-import mapview.TextFeature
-import mapview.tile.OpenstreetmapMapTileProvider
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import mapview.*
+import mapview.tiles.MapTileProvider
 import mapview.view.MapView
 import mapview.viewData.ViewData
 import mapview.viewData.addScale
@@ -109,8 +109,12 @@ fun main() = application {
 
 
     val mapTileProvider = remember {
+        val client = HttpClient()
         mutableStateOf(
-            OpenstreetmapMapTileProvider()
+            MapTileProvider(
+                parallel = 1,
+                load = { client.get(MapTileProvider.osmUrl(it).also { println(it)}).readBytes().toImageBitmap() }
+            )
         )
     }
 

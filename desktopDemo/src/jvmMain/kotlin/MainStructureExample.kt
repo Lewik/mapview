@@ -15,10 +15,12 @@ import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import mapview.*
-import mapview.tile.HttpMapTileProvider
+import mapview.tiles.MapTileProvider
 import mapview.view.MapView
 import mapview.viewData.*
 import java.security.cert.X509Certificate
@@ -169,9 +171,8 @@ fun main() = application {
             }
         }
         mutableStateOf(
-            HttpMapTileProvider(
-                client = client,
-                url = { zoom, x, y -> "https://monitor.cr.smart-dn.ru:8899/styles/basic-dark/$zoom/$x/$y.png" },
+            MapTileProvider(
+                load = { (zoom, x, y) -> client.get("https://monitor.cr.smart-dn.ru:8899/styles/basic-dark/$zoom/$x/$y.png").readBytes().toImageBitmap() }
             )
         )
     }
