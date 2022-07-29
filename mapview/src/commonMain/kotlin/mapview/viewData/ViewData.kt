@@ -5,7 +5,7 @@ import androidx.compose.ui.geometry.Size
 import mapview.Extent
 import mapview.Feature
 import mapview.SchemeCoordinates
-import mapview.tiles.MapTileProvider
+import mapview.tiles.MapTile
 import mapview.toExtent
 import kotlin.math.max
 import kotlin.math.min
@@ -82,7 +82,7 @@ data class ViewData(
     fun zoomToFeatures(features: Iterable<Feature>) = zoomToExtent(features.toExtent())
     fun getMinScaleCoerce() = .0.coerce()
     private fun Double.coerce(): Double {
-        val absoluteMin = min(size.height.toDouble(), size.width.toDouble()) / MapTileProvider.EQUATOR
+        val absoluteMin = min(size.height.toDouble(), size.width.toDouble()) / MapTile.EQUATOR
         val min = max(minScale ?: .0, absoluteMin)
 
         return coerceIn(min, maxScale)
