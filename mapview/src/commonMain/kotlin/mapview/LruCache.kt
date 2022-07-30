@@ -1,7 +1,7 @@
 package mapview
 
 
-class LruCache<K, V>(
+internal class LruCache<K, V>(
     private var capacity: Int,
 ) {
     private val cache = linkedMapOf<K, V>()

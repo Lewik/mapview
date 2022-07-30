@@ -165,7 +165,7 @@ fun MapView(
 
 const val TILE_SIZE = 256
 
-fun LruCache<TileId, MapTile>.searchOrCrop(tile: TileId): MapTile? {
+internal fun LruCache<TileId, MapTile>.searchOrCrop(tile: TileId): MapTile? {
     val img1 = get(tile)
     if (img1 != null) {
         return img1
