@@ -34,8 +34,6 @@ fun main() = application {
         val image = useResource("img.png", ::loadImageBitmap)
         BitmapPainter(image) to DpSize(image.width.dp, image.height.dp)
     }
-    val focus = SchemeCoordinates(0.0, 0.0)
-    val initialScale = 1.0
     val features = remember {
         derivedStateOf {
             listOf(
@@ -77,7 +75,7 @@ fun main() = application {
                 ),
                 CircleFeature(
                     id = FeatureId("6"),
-                    position = focus,
+                    position = SchemeCoordinates(0.0, 0.0),
                     radius = 4.dp,
                     color = Color.Red
                 ),
@@ -101,8 +99,6 @@ fun main() = application {
     val viewData = remember {
         mutableStateOf(
             ViewData(
-                focus = focus,
-                scale = initialScale,
                 showDebug = true,
                 density = density,
             ).zoomToFeatures(features.value)
