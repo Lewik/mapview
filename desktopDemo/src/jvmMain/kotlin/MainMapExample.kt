@@ -1,6 +1,7 @@
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -12,6 +13,9 @@ import androidx.compose.ui.window.application
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import mapview.*
 import mapview.tiles.MapTileProvider
 import mapview.view.MapView
@@ -35,14 +39,20 @@ fun main() = application {
     val initialFocus = focusMoscow
     val initialScale = 1.0
 
+
     val flag = remember { mutableStateOf(true) }
-//    scope.launch {
-//        while (isActive) {
-//            delay(500)
-//            //Overwrite a feature with new color
-//            flag.value = !flag.value
-//        }
-//    }
+
+    if (false) {
+        val scope = rememberCoroutineScope()
+        scope.launch {
+            while (isActive) {
+                delay(500)
+                //Overwrite a feature with new color
+                flag.value = !flag.value
+            }
+        }
+    }
+
     val features = remember {
         derivedStateOf {
             //90k features
@@ -113,7 +123,7 @@ fun main() = application {
         mutableStateOf(
             MapTileProvider(
                 parallel = 1,
-                load = { client.get(MapTileProvider.osmUrl(it).also { println(it)}).readBytes().toImageBitmap() }
+                load = { client.get(MapTileProvider.osmUrl(it).also { println(it) }).readBytes().toImageBitmap() }
             )
         )
     }
