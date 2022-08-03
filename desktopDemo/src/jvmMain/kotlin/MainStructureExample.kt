@@ -1,9 +1,16 @@
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.toMutableStateMap
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -145,16 +152,14 @@ fun main() = application {
 
 
     val viewData = remember {
-        val state = mutableStateOf(
+        mutableStateOf(
             ViewData(
                 focus = initialFocus,
                 scale = initialScale,
-                size = Size(800f, 600f),
-                showDebug = false,
-            ).zoomToFeatures(features.value)
+                showDebug = true,
+                density = density,
+            )
         )
-        state.value = state.value.zoomToFeatures(features.value)
-        state
     }
 
 
@@ -182,69 +187,92 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         title = "Map View",
         state = WindowState(
+//            size = DpSize(1600.dp, 1200.dp),
             position = WindowPosition(Alignment.TopStart),
         ),
     ) {
-        MapView(
-            mapTileProvider = mapTileProvider,
-            features = features,
-            onScroll = { scaleDelta, target -> viewData.addScale(scaleDelta, target) },
-            onDragStart = { offset ->
-                val target = getClosestFeaturesIds(
-                    density = density,
-                    viewData = viewData.value,
-                    features = features.value.filter { it is PointFeatureType },
-                    offset = offset,
-                    hitTolerance = dragHitTolerance
-                )
-                    .firstOrNull()
-                if (target != null) {
-                    draggableFeatureId.value = target
-                }
-            },
-            onDrag = { offset ->
-                with(viewData.value) {
-                    val target = draggableFeatureId.value
+        Box {
+            MapView(
+                mapTileProvider = mapTileProvider,
+                features = features,
+                onDragStart = { offset ->
+                    val target = getClosestFeaturesIds(
+                        density = density,
+                        viewData = viewData.value,
+                        features = features.value.filter { it is PointFeatureType },
+                        offset = offset,
+                        hitTolerance = dragHitTolerance
+                    )
+                        .firstOrNull()
                     if (target != null) {
-                        var building = buildings[target.value]
-                        if (building !== null) {
-                            val schemeCoordinates = building.coordinates.toSchemeCoordinates()
+                        draggableFeatureId.value = target
+                    }
+                },
+                onDrag = { offset ->
+                    with(viewData.value) {
+                        val target = draggableFeatureId.value
+                        if (target != null) {
+                            var building = buildings[target.value]
+                            if (building !== null) {
+                                val schemeCoordinates = building.coordinates.toSchemeCoordinates()
 
-                            val newSchemeCoordinates = SchemeCoordinates(
-                                x = schemeCoordinates.x + offset.x / scale,
-                                y = schemeCoordinates.y - offset.y / scale
-                            )
-                            building = building.copy(coordinates = newSchemeCoordinates.toMercatorPoint())
-                            buildings[target.value] = building
+                                val newSchemeCoordinates = SchemeCoordinates(
+                                    x = schemeCoordinates.x + offset.x / scale,
+                                    y = schemeCoordinates.y - offset.y / scale
+                                )
+                                building = building.copy(coordinates = newSchemeCoordinates.toMercatorPoint())
+                                buildings[target.value] = building
+                            } else {
+                                viewData.move(offset)
+                            }
                         } else {
                             viewData.move(offset)
                         }
-                    } else {
-                        viewData.move(offset)
                     }
+                },
+                onDragEnd = { draggableFeatureId.value = null },
+                onFirstResize = {
+                    viewData.resize(it)
+                    viewData.zoomToFeatures(features.value)
+                },
+                viewData = viewData,
+                onClick = { offset ->
+                    with(viewData.value) {
+                        val selected = getClosestFeaturesIds(
+                            density = density,
+                            viewData = viewData.value,
+                            features = features.value,
+                            offset = offset,
+                            hitTolerance = selectHitTolerance
+                        )
+
+                        selectedFeatureIds.value = selected
+
+                        val coordinates = offset.toSchemeCoordinates()
+                        println("CLICK at ($offset) $coordinates SELECTED: ${selectedFeatureIds.value}")
+
+                    }
+                },
+            )
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Button(onClick = { viewData.zoomToFeatures(features.value) }) {
+                    Icon(Icons.Default.Search, "")
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(text = "Zoom to features")
                 }
-            },
-            onDragEnd = { draggableFeatureId.value = null },
-            onResize = { viewData.resize(it) },
-            viewData = viewData,
-            onClick = { offset ->
-                with(viewData.value) {
-                    val selected = getClosestFeaturesIds(
-                        density = density,
-                        viewData = viewData.value,
-                        features = features.value,
-                        offset = offset,
-                        hitTolerance = selectHitTolerance
-                    )
-
-                    selectedFeatureIds.value = selected
-
-                    val coordinates = offset.toSchemeCoordinates()
-                    println("CLICK at ($offset) $coordinates SELECTED: ${selectedFeatureIds.value}")
-
+                Button(
+                    onClick = { viewData.value = viewData.value.copy(showDebug = !viewData.value.showDebug) }) {
+                    Icon(Icons.Default.Info, "")
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(text = if (viewData.value.showDebug) "Hide debug" else "Show debug")
                 }
-            },
-        )
+            }
+        }
     }
 }
 

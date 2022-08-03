@@ -3,6 +3,7 @@ package mapview.viewData
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.unit.Dp
 import mapview.Extent
 import mapview.Feature
 
@@ -28,10 +29,19 @@ fun MutableState<ViewData>.multiplyScale(multiplier: Float) {
     value = value.multiplyScale(multiplier)
 }
 
-fun MutableState<ViewData>.zoomToExtent(extent: Extent) {
-    value = value.zoomToExtent(extent)
+fun MutableState<ViewData>.zoomToExtent(
+    extent: Extent,
+    padding: Dp = ViewData.PaddingDefault,
+) {
+    value = value.zoomToExtent(
+        extent = extent,
+        padding = padding
+    )
 }
 
-fun MutableState<ViewData>.zoomToFeatures(features: Iterable<Feature>) {
-    value = value.zoomToFeatures(features)
+fun MutableState<ViewData>.zoomToFeatures(
+    features: Iterable<Feature>,
+    padding: Dp = ViewData.PaddingDefault,
+) {
+    value = value.zoomToFeatures(features, padding)
 }

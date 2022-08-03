@@ -2,6 +2,9 @@ package mapview.viewData
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import mapview.Extent
 import mapview.Feature
 import mapview.SchemeCoordinates
@@ -14,12 +17,13 @@ import kotlin.math.min
  * Observable position on the map. Includes observation coordinate and [scale] factor
  */
 data class ViewData(
-    val size: Size,
+    val size: Size = Size(1f, 1f),
     val focus: SchemeCoordinates = SchemeCoordinates(.0, .0),
     val scale: Double = 1.0,
     val showDebug: Boolean = false,
     val minScale: Double? = null,
     val maxScale: Double? = Double.MAX_VALUE,
+    val density: Density,
 ) {
 
 
@@ -67,25 +71,44 @@ data class ViewData(
         return copy(scale = newScale)
     }
 
-    fun zoomToExtent(extent: Extent): ViewData {
-        val extentWidth = extent.b.x - extent.a.x
-        val extentHeight = extent.b.y - extent.a.y
-        val widthScale = size.width / extentWidth
-        val heightScale = size.height / extentHeight
-        val newScale = min(widthScale, heightScale)
+    fun zoomToExtent(
+        extent: Extent,
+        padding: Dp = PaddingDefault,
+    ): ViewData {
+        val newScale = calculateScaleForExtent(extent, padding)
         return copy(
             focus = extent.center,
-            scale = newScale.coerce()
+            scale = newScale
         )
     }
 
-    fun zoomToFeatures(features: Iterable<Feature>) = zoomToExtent(features.toExtent())
+    fun calculateScaleForExtent(extent: Extent, padding: Dp = PaddingDefault): Double {
+        val pxPadding = with(density) { padding.toPx() }.toDouble()
+        val extentWidth = extent.b.x - extent.a.x
+        val extentHeight = extent.b.y - extent.a.y
+        val widthScale = (size.width - pxPadding) / extentWidth
+        val heightScale = (size.height - pxPadding) / extentHeight
+        return min(widthScale, heightScale).coerce()
+    }
+
+    fun zoomToFeatures(
+        features: Iterable<Feature>,
+        padding: Dp = PaddingDefault,
+    ) = zoomToExtent(
+        extent = features.toExtent(),
+        padding = padding
+    )
+
     fun getMinScaleCoerce() = .0.coerce()
     private fun Double.coerce(): Double {
         val absoluteMin = min(size.height.toDouble(), size.width.toDouble()) / EQUATOR
         val min = max(minScale ?: .0, absoluteMin)
 
         return coerceIn(min, maxScale)
+    }
+
+    companion object {
+        val PaddingDefault = 100.dp
     }
 }
 

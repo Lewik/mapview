@@ -1,10 +1,18 @@
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
@@ -20,9 +28,7 @@ import mapview.*
 import mapview.tiles.MapTileProvider
 import mapview.view.MapView
 import mapview.viewData.ViewData
-import mapview.viewData.addScale
-import mapview.viewData.move
-import mapview.viewData.resize
+import mapview.viewData.zoomToFeatures
 
 fun main() = application {
 
@@ -106,13 +112,15 @@ fun main() = application {
 
         }
     }
+
+    val density = LocalDensity.current
     val viewData = remember {
         mutableStateOf(
             ViewData(
                 focus = initialFocus,
                 scale = initialScale,
-                size = Size(512f, 512f),
                 showDebug = true,
+                density = density,
             )
         )
     }
@@ -135,18 +143,36 @@ fun main() = application {
             position = WindowPosition(Alignment.TopStart),
         ),
     ) {
-        MapView(
-            mapTileProvider = mapTileProvider,
-            features = features,
-            onScroll = { scaleDelta, target -> viewData.addScale(scaleDelta, target) },
-            onDrag = { viewData.move(it) },
-            onClick = { offset ->
-                val coordinates = with(viewData.value) { offset.toSchemeCoordinates() }
-                println("CLICK as $coordinates")
-            },
-            onResize = { viewData.resize(it) },
-            viewData = viewData,
-        )
+        Box {
+            MapView(
+                mapTileProvider = mapTileProvider,
+                features = features,
+                onClick = { offset ->
+                    val coordinates = with(viewData.value) { offset.toSchemeCoordinates() }
+                    println("CLICK as $coordinates")
+                },
+                viewData = viewData,
+            )
+
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Button(onClick = { viewData.zoomToFeatures(features.value) }) {
+                    Icon(Icons.Default.Search, "")
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(text = "Zoom to features")
+                }
+                Button(
+                    onClick = { viewData.value = viewData.value.copy(showDebug = !viewData.value.showDebug) }) {
+                    Icon(Icons.Default.Info, "")
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(text = if (viewData.value.showDebug) "Hide debug" else "Show debug")
+                }
+            }
+        }
     }
 }
 

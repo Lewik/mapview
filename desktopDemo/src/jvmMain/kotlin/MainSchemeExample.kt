@@ -1,11 +1,19 @@
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.DpSize
@@ -17,19 +25,17 @@ import androidx.compose.ui.window.application
 import mapview.*
 import mapview.view.SchemeView
 import mapview.viewData.ViewData
-import mapview.viewData.addScale
-import mapview.viewData.move
-import mapview.viewData.resize
+import mapview.viewData.zoomToFeatures
 
 fun main() = application {
+    val density = LocalDensity.current
 
     val (painter, imgSize) = remember() {
         val image = useResource("img.png", ::loadImageBitmap)
         BitmapPainter(image) to DpSize(image.width.dp, image.height.dp)
     }
     val focus = SchemeCoordinates(0.0, 0.0)
-    val scale = 1.0
-
+    val initialScale = 1.0
     val features = remember {
         derivedStateOf {
             listOf(
@@ -96,9 +102,9 @@ fun main() = application {
         mutableStateOf(
             ViewData(
                 focus = focus,
-                scale = scale,
-                size = Size(512f, 512f),
+                scale = initialScale,
                 showDebug = true,
+                density = density,
             ).zoomToFeatures(features.value)
         )
     }
@@ -112,17 +118,39 @@ fun main() = application {
             position = WindowPosition(Alignment.TopStart),
         ),
     ) {
-        SchemeView(
-            features = features,
-            onScroll = { scaleDelta, target -> viewData.addScale(scaleDelta, target) },
-            onDrag = { viewData.move(it) },
-            onClick = { offset ->
-                val coordinates = with(viewData.value) { offset.toSchemeCoordinates() }
-                println("CLICK as $coordinates")
-            },
-            onResize = { viewData.resize(it) },
-            viewData = viewData,
-        )
+        Box {
+            SchemeView(
+                features = features,
+                onClick = { offset ->
+                    val coordinates = with(viewData.value) { offset.toSchemeCoordinates() }
+                    println("CLICK as $coordinates")
+                },
+                viewData = viewData,
+            )
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Button(onClick = { viewData.zoomToFeatures(features.value.filter { it !is ScaledImageFeature }) }) {
+                    Icon(Icons.Default.Search, "")
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(text = "Zoom to features")
+                }
+                Button(onClick = { viewData.zoomToFeatures(features.value.filter { it is ScaledImageFeature }) }) {
+                    Icon(Icons.Default.Search, "")
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(text = "Zoom to background")
+                }
+                Button(
+                    onClick = { viewData.value = viewData.value.copy(showDebug = !viewData.value.showDebug) }) {
+                    Icon(Icons.Default.Info, "")
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(text = if (viewData.value.showDebug) "Hide debug" else "Show debug")
+                }
+            }
+        }
     }
 }
 

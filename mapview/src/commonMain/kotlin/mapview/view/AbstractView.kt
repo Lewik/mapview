@@ -7,8 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
+import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -35,12 +34,12 @@ internal fun AbstractView(
     onDragCancel: () -> Unit = {},
     onScroll: (scrollY: Float, target: Offset?) -> Unit = { _, _ -> },
     onClick: (offset: Offset) -> Unit = {},
+    onFirstResize: (size: Size) -> Unit,
     onResize: (size: Size) -> Unit,
     modifier: Modifier = Modifier,
     tileSizeXY: IntSize,
     mapTiles: SnapshotStateList<MapTile>,
 ) {
-//    val viewData by remember { derivedStateOf { viewData.value } } //TODO is it correct?
     with(viewData.value) {
         val canvasModifier = Modifier
             .canvasGestures(
@@ -53,9 +52,15 @@ internal fun AbstractView(
             ).then(modifier)
 
         Box(canvasModifier) {
+            var wasFirstResize by remember { mutableStateOf(false) }
             Canvas(Modifier.fillMaxSize()) {
                 if (viewData.value.size != size) {
-                    onResize(size)
+                    if (wasFirstResize) {
+                        onResize(size)
+                    } else {
+                        wasFirstResize = true
+                        onFirstResize(size)
+                    }
                 }
                 clipRect {
                     mapTiles.forEach { mapTile ->
@@ -131,7 +136,7 @@ internal fun AbstractView(
                                 }
                             }
                             is ScaledRectFeature -> {
-                                val size = feature.size.toSize() * scale.toFloat()
+                                val size = feature.size.toSizeAsValue() * scale.toFloat()
                                 val offset = feature.position.toOffset()
                                 drawRect(
                                     brush = feature.brush,
@@ -141,7 +146,7 @@ internal fun AbstractView(
                                 )
                             }
                             is ScaledImageFeature -> {
-                                val size = feature.size.toSize() * scale.toFloat()
+                                val size = feature.size.toSizeAsValue() * scale.toFloat()
                                 val offset = feature.position.toOffset()
                                 translate(
                                     left = offset.x,
@@ -200,3 +205,5 @@ internal fun AbstractView(
         }
     }
 }
+
+private fun DpSize.toSizeAsValue() = Size(width.value, height.value)

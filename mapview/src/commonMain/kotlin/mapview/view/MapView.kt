@@ -4,7 +4,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -13,6 +12,9 @@ import mapview.Feature
 import mapview.LruCache
 import mapview.tiles.*
 import mapview.viewData.ViewData
+import mapview.viewData.addScale
+import mapview.viewData.move
+import mapview.viewData.resize
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.*
 
@@ -27,15 +29,18 @@ fun MapView(
     maxZoom: Int = 18,
     tileSize: Dp = 256.dp,
     inmemoryTileCacheAmount: Int = 500,
-    features: State<List<Feature>>,
-    viewData: State<ViewData>,
+    features: State<List<Feature>> = remember { mutableStateOf(emptyList()) },
+    viewData: MutableState<ViewData>,
     onDragStart: (offset: Offset) -> Unit = {},
-    onDrag: (dragAmount: Offset) -> Unit = {},
+    onDrag: (dragAmount: Offset) -> Unit = { viewData.move(it) },
     onDragEnd: () -> Unit = {},
     onDragCancel: () -> Unit = {},
-    onScroll: (scrollY: Float, target: Offset?) -> Unit = { _, _ -> },
+    onScroll: (scrollY: Float, target: Offset?) -> Unit = { scaleDelta, target ->
+        viewData.addScale(scaleDelta, target)
+    },
     onClick: (offset: Offset) -> Unit = {},
-    onResize: (size: Size) -> Unit,
+    onResize: (size: Size) -> Unit = { viewData.resize(it) },
+    onFirstResize: (size: Size) -> Unit = { onResize(it) },
     modifier: Modifier = Modifier,
 ) {
     val tileCache by remember {
@@ -44,8 +49,8 @@ fun MapView(
         )
     }
 
-    with(LocalDensity.current) {
-        with(viewData.value) {
+    with(viewData.value) {
+        with(viewData.value.density) {
             val zoom by remember {
                 derivedStateOf {
                     (minZoom..maxZoom).firstOrNull { zoom ->
@@ -154,6 +159,7 @@ fun MapView(
                 onDragCancel = onDragCancel,
                 onScroll = onScroll,
                 onClick = onClick,
+                onFirstResize = onFirstResize,
                 onResize = onResize,
                 modifier = modifier,
                 tileSizeXY = tileSizeXY.value,
