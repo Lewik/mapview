@@ -4,7 +4,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -36,7 +35,8 @@ internal fun AbstractView(
     onClick: (offset: Offset) -> Unit = {},
     onFirstResize: (size: Size) -> Unit,
     onResize: (size: Size) -> Unit,
-    modifier: Modifier = Modifier,
+    //size should be specified: see Canvas
+    modifier: Modifier,
     tileSizeXY: IntSize,
     mapTiles: SnapshotStateList<MapTile>,
 ) {
@@ -53,7 +53,7 @@ internal fun AbstractView(
 
         Box(canvasModifier) {
             var wasFirstResize by remember { mutableStateOf(false) }
-            Canvas(Modifier.fillMaxSize()) {
+            Canvas(Modifier.matchParentSize()) {
                 if (viewData.value.size != size) {
                     if (wasFirstResize) {
                         onResize(size)

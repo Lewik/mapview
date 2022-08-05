@@ -41,7 +41,8 @@ fun MapView(
     onClick: (offset: Offset) -> Unit = {},
     onResize: (size: Size) -> Unit = { viewData.resize(it) },
     onFirstResize: (size: Size) -> Unit = { onResize(it) },
-    modifier: Modifier = Modifier,
+    //size should be specified: see Canvas
+    modifier: Modifier,
 ) {
     val tileCache by remember {
         mutableStateOf(//state лишний?

@@ -152,6 +152,7 @@ fun main() = application {
                     println("CLICK as $coordinates")
                 },
                 viewData = viewData,
+                modifier = Modifier.fillMaxSize(),
             )
 
             Row(

@@ -253,6 +253,7 @@ fun main() = application {
 
                     }
                 },
+                modifier = Modifier.fillMaxSize(),
             )
             Row(
                 modifier = Modifier

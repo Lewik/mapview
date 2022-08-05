@@ -29,7 +29,8 @@ fun SchemeView(
     onClick: (offset: Offset) -> Unit = {},
     onResize: (size: Size) -> Unit = { viewData.resize(it) },
     onFirstResize: (size: Size) -> Unit = { onResize(it) },
-    modifier: Modifier = Modifier,
+    //size should be specified: see Canvas
+    modifier: Modifier,
 ) = AbstractView(
     features = features,
     viewData = viewData,
