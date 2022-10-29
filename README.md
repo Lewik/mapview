@@ -6,19 +6,7 @@ Jetbrains compose based maps and schemes component
 
 
 ## Download
-Use https://jitpack.io repository (not working, use publishToLocalMaven)
-```
-	allprojects {
-		repositories {
-			...
-			maven { url 'https://jitpack.io' }
-		}
-	}
-```
-
-```
-compile 'com.github.lewik.mapview:mapview:2.0.4'
-```
+use publishToLocalMaven
 
 ## Usage
 
