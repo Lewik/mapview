@@ -1,7 +1,5 @@
 # mapview (alfa)
 
-[![](https://jitpack.io/v/lewik/mapview.svg)](https://jitpack.io/#lewik/mapview)
-
 Jetbrains compose based maps and schemes component
 
 
