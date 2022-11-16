@@ -3,11 +3,14 @@ package mapview.android
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import io.ktor.client.*
 import io.ktor.client.request.*
@@ -24,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val density = LocalDensity.current
             val focusUnderAfrica = SchemeCoordinates(
                 x = 0.0,
                 y = 0.0,
@@ -105,6 +109,7 @@ class MainActivity : AppCompatActivity() {
                         scale = initialScale,
                         size = Size(512f, 512f),
                         showDebug = true,
+                        density = density,
                     )
                 )
             }
@@ -131,6 +136,7 @@ class MainActivity : AppCompatActivity() {
                 },
                 onResize = { viewData.resize(it) },
                 viewData = viewData,
+                modifier = Modifier.fillMaxSize()
             )
         }
     }

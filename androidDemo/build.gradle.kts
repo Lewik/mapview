@@ -15,21 +15,22 @@ dependencies {
     implementation(project(":mapview"))
     api("io.ktor:ktor-client-core:$KTOR_VERSION")
     api("io.ktor:ktor-client-cio:$KTOR_VERSION")
-    implementation("androidx.activity:activity-compose:1.3.0")
+    implementation("androidx.activity:activity-compose:$ANDROIDX_ACTIVITY_COMPOSE_VERSION")
 }
 
 android {
-    compileSdkVersion(31)
+    compileSdk = 32
+
     defaultConfig {
         applicationId = "mapview.android"
-        minSdkVersion(24)
-        targetSdkVersion(30)
+        minSdk = 26
+        targetSdk = 32
         versionCode = 1
         versionName = "1.0-SNAPSHOT"
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JAVA_VERSION
+        targetCompatibility = JAVA_VERSION
     }
     buildTypes {
         getByName("release") {
