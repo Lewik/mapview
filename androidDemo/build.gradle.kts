@@ -13,9 +13,9 @@ repositories {
 
 dependencies {
     implementation(project(":mapview"))
-    api("io.ktor:ktor-client-core:$KTOR_VERSION")
-    api("io.ktor:ktor-client-cio:$KTOR_VERSION")
-    implementation("androidx.activity:activity-compose:$ANDROIDX_ACTIVITY_COMPOSE_VERSION")
+    api("io.ktor:ktor-client-core:$ktor_version")
+    api("io.ktor:ktor-client-cio:$ktor_version")
+    implementation("androidx.activity:activity-compose:$androidx_activity_compose_version")
 }
 
 android {
@@ -29,8 +29,8 @@ android {
         versionName = "1.0-SNAPSHOT"
     }
     compileOptions {
-        sourceCompatibility = JAVA_VERSION
-        targetCompatibility = JAVA_VERSION
+        sourceCompatibility = java_version
+        targetCompatibility = java_version
     }
     buildTypes {
         getByName("release") {

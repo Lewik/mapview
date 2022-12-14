@@ -1,3 +1,5 @@
+package desktopDemo
+
 import kotlinx.serialization.Serializable
 
 //for internal use

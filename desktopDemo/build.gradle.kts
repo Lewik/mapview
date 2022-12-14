@@ -1,4 +1,3 @@
-import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -13,23 +12,23 @@ version = "1.0-SNAPSHOT"
 
 kotlin {
     jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = JAVA_VERSION.toString()
-        }
+//        compilations.all {
+//            kotlinOptions.jvmTarget = java_version.toString()
+//        }
         withJava()
     }
     sourceSets {
+        println(map { it.name })
         val jvmMain by getting {
             dependencies {
                 implementation(project(":mapview"))
                 implementation(compose.desktop.currentOs)
-                api("io.ktor:ktor-client-core:$KTOR_VERSION")
-                api("io.ktor:ktor-client-cio:$KTOR_VERSION")
-                api("org.jetbrains.kotlinx:kotlinx-serialization-core:$SERIALIZATION_VERSION")
-                api("org.jetbrains.kotlinx:kotlinx-serialization-json:$SERIALIZATION_VERSION")
+                implementation("io.ktor:ktor-client-core:$ktor_version")
+                implementation("io.ktor:ktor-client-cio:$ktor_version")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serialization_version")
             }
         }
-        val jvmTest by getting
     }
 }
 

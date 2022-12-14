@@ -11,12 +11,12 @@ allprojects {
 }
 
 plugins {
-    kotlin("multiplatform").version(KOTLIN_VERSION) apply (false)
-    kotlin("plugin.serialization").version(KOTLIN_VERSION) apply (false)
-    kotlin("android").version(KOTLIN_VERSION) apply (false)
-    id("com.android.application").version(AGP_VERSION) apply (false)
-    id("com.android.library").version(AGP_VERSION) apply (false)
-    id("org.jetbrains.compose").version(COMPOSE_VERSION) apply (false)
+    kotlin("multiplatform").version(kotlin_version) apply (false)
+    kotlin("plugin.serialization").version(kotlin_version) apply (false)
+    kotlin("android").version(kotlin_version) apply (false)
+    id("com.android.application").version(agp_version) apply (false)
+    id("com.android.library").version(agp_version) apply (false)
+    id("org.jetbrains.compose").version(compose_version) apply (false)
 }
 
 version = "1.0-SNAPSHOT"

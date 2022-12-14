@@ -1,3 +1,5 @@
+package desktopDemo
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
 import androidx.compose.material.TextField

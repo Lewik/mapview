@@ -15,7 +15,7 @@ kotlin {
     android()
     jvm("desktop") {
         compilations.all {
-            kotlinOptions.jvmTarget = JAVA_VERSION.toString()
+            kotlinOptions.jvmTarget = java_version.toString()
         }
     }
     sourceSets {
@@ -33,8 +33,8 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
-                api("androidx.appcompat:appcompat:$ANDROIDX_APPCOMPAT_VERSION")
-                api("androidx.core:core-ktx:$ANDROIDX_CORE_KTX_VERSION")
+                api("androidx.appcompat:appcompat:$androidx_appcompat_version")
+                api("androidx.core:core-ktx:$androidx_core_ktx_version")
             }
         }
         val androidTest by getting {
@@ -70,7 +70,7 @@ android {
         targetSdk = 32
     }
     compileOptions {
-        sourceCompatibility = JAVA_VERSION
-        targetCompatibility = JAVA_VERSION
+        sourceCompatibility = java_version
+        targetCompatibility = java_version
     }
 }

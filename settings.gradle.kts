@@ -11,4 +11,8 @@ pluginManagement {
 }
 rootProject.name = "mapview"
 
-include(":androidDemo", ":desktopDemo", ":mapview")
+include(
+    ":androidDemo",
+    ":desktopDemo",
+    ":mapview"
+)
