@@ -12,8 +12,8 @@ class Extent(val a: SchemeCoordinates, val b: SchemeCoordinates) {
 
 @JvmName("schemeCoordinatesBoxToExtent")
 fun Iterable<SchemeCoordinates>.toExtent() = Extent(
-    a = SchemeCoordinates(minOf { it.x }, minOf { it.y }),
-    b = SchemeCoordinates(maxOf { it.x }, maxOf { it.y }),
+    a = SchemeCoordinates(minOfOrNull { it.x } ?: .0, minOfOrNull { it.y } ?: .0),
+    b = SchemeCoordinates(maxOfOrNull { it.x } ?: .0, maxOfOrNull { it.y } ?: .0),
 )
 
 @JvmName("ExtentToExtent")
