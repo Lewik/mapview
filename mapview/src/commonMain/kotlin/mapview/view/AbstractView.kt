@@ -54,6 +54,7 @@ internal fun AbstractView(
         Box(canvasModifier) {
             var wasFirstResize by remember { mutableStateOf(false) }
             Canvas(Modifier.matchParentSize()) {
+                fun DpOffset.toOffset() = Offset(x.toPx(), y.toPx())
                 if (viewData.value.size != size) {
                     if (wasFirstResize) {
                         onResize(size)
@@ -127,7 +128,7 @@ internal fun AbstractView(
                             )
 
                             is ImageFeature -> {
-                                val offset = feature.position.toOffset() - feature.centerOffset
+                                val offset = feature.position.toOffset() - feature.centerOffset.toOffset()
                                 translate(
                                     left = offset.x,
                                     top = offset.y
