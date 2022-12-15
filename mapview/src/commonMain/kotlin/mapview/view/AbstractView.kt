@@ -127,7 +127,7 @@ internal fun AbstractView(
                             )
 
                             is ImageFeature -> {
-                                val offset = feature.position.toOffset()
+                                val offset = feature.position.toOffset() - feature.centerOffset
                                 translate(
                                     left = offset.x,
                                     top = offset.y

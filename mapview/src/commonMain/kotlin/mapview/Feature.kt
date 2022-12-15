@@ -1,5 +1,6 @@
 package mapview
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -96,7 +97,27 @@ class ImageFeature(
     override val size: DpSize,
     val alpha: Float = DefaultAlpha,
     val colorFilter: ColorFilter? = null,
-) : Feature(), RectFeatureType
+    val centerOffset: Offset = Offset.Zero,
+) : Feature(), RectFeatureType {
+    companion object {
+        fun centered(
+            id: FeatureId,
+            position: SchemeCoordinates,
+            painter: Painter,
+            size: DpSize,
+            alpha: Float = DefaultAlpha,
+            colorFilter: ColorFilter? = null,
+        ) = ImageFeature(
+            id = id,
+            position = position,
+            painter = painter,
+            size = size,
+            alpha = alpha,
+            colorFilter = colorFilter,
+            centerOffset = Offset(size.width.value / 2, size.height.value / 2)
+        )
+    }
+}
 
 class ScaledImageFeature(
     override val id: FeatureId,
