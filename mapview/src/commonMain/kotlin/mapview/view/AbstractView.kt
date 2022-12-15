@@ -117,6 +117,7 @@ internal fun AbstractView(
                                 center = feature.position.toOffset(),
                                 style = feature.style,
                             )
+
                             is LineFeature -> drawLine(
                                 color = feature.color,
                                 start = feature.positionStart.toOffset(),
@@ -124,6 +125,7 @@ internal fun AbstractView(
                                 strokeWidth = feature.width.toPx(),
                                 cap = feature.cap
                             )
+
                             is ImageFeature -> {
                                 val offset = feature.position.toOffset()
                                 translate(
@@ -131,10 +133,15 @@ internal fun AbstractView(
                                     top = offset.y
                                 ) {
                                     with(feature.painter) {
-                                        draw(size = feature.size.toSize())
+                                        draw(
+                                            size = feature.size.toSize(),
+                                            alpha = feature.alpha,
+                                            colorFilter = feature.colorFilter,
+                                        )
                                     }
                                 }
                             }
+
                             is ScaledRectFeature -> {
                                 val size = feature.size.toSizeAsValue() * scale.toFloat()
                                 val offset = feature.position.toOffset()
@@ -145,6 +152,7 @@ internal fun AbstractView(
                                     style = feature.style
                                 )
                             }
+
                             is ScaledImageFeature -> {
                                 val size = feature.size.toSizeAsValue() * scale.toFloat()
                                 val offset = feature.position.toOffset()
@@ -157,6 +165,7 @@ internal fun AbstractView(
                                     }
                                 }
                             }
+
                             is TextFeature -> drawIntoCanvas { canvas ->
                                 val offset = feature.position.toOffset()
                                 canvas.nativeCanvas.drawText1(
