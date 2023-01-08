@@ -7,7 +7,7 @@ const val kotlin_version = "1.7.20"
 const val serialization_version = "1.4.1"
 
 const val agp_version = "7.1.3"
-const val compose_version = "1.2.1"
+const val compose_version = "1.2.2"
 const val ktor_version = "2.1.3"
 const val androidx_activity_compose_version = "1.5.0"
 const val androidx_appcompat_version = "1.5.1"

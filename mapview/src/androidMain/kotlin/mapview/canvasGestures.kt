@@ -16,8 +16,9 @@ actual fun Modifier.canvasGestures(
     onDragCancel: () -> Unit,
     onScroll: (scrollY: Float, target: Offset?) -> Unit,
     onClick: (offset: Offset) -> Unit,
-) = pointerInput(Unit) { detectTapGestures(onTap = onClick) }
-    .pointerInput(Unit) {
+    features: List<Feature>,
+) = pointerInput(features) { detectTapGestures(onTap = onClick) }
+    .pointerInput(features) {
         detectDragGestures(
             onDragStart = onDragStart,
             onDrag = { _, dragAmount -> onDrag(dragAmount) },

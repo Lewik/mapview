@@ -11,13 +11,13 @@ import kotlin.math.sqrt
 /**
  * returns sorted by distance
  */
-fun <T> getClosestFeaturesIds(
+fun getClosestFeaturesIds(
     density: Density,
     viewData: ViewData,
-    features: List<T>,
+    features: List<Feature>,
     offset: Offset,
     hitTolerance: Dp,
-): List<FeatureId> where T : Feature, T : FeatureType {
+): List<FeatureId> {
     val hitToleranceSquared = with(density) { hitTolerance.toPx().pow(2) }
     return features.map { it.id to viewData.getSquaredDistance(offset, it) }
         .filter { it.second < hitToleranceSquared }
@@ -31,10 +31,12 @@ fun ViewData.getPixelDistance(target: Offset, feature: FeatureType, density: Den
     }
 
 private fun ViewData.getSquaredDistance(target: Offset, feature: FeatureType) = when (feature) {
-    is PointFeatureType -> getSquaredDistanceToPoint(target, feature)
+    is CircleFeatureType -> getSquaredDistanceToCircle(target, feature)
+    is TextFeatureType -> getSquaredDistanceToText(target, feature)
     is RectFeatureType -> getSquaredDistanceToRect(target, feature)
     is ScaledRectFeatureType -> getSquaredDistanceToScaledRect(target, feature)
     is LineFeatureType -> getSquaredDistanceToLine(target, feature)
+    is Feature -> throw Exception("impossible execution exception")
 }
 
 private fun ViewData.getSquaredDistanceToLine(target: Offset, feature: LineFeatureType): Float {
@@ -50,7 +52,12 @@ private fun ViewData.getSquaredDistanceToLine(target: Offset, feature: LineFeatu
     )
 }
 
-private fun ViewData.getSquaredDistanceToPoint(target: Offset, feature: PointFeatureType): Float {
+private fun ViewData.getSquaredDistanceToCircle(target: Offset, feature: CircleFeatureType): Float {
+    val offset = feature.position.toOffset()
+    return (target.x - offset.x).pow(2) + (target.y - offset.y).pow(2)
+}
+
+private fun ViewData.getSquaredDistanceToText(target: Offset, feature: TextFeatureType): Float {
     val offset = feature.position.toOffset()
     return (target.x - offset.x).pow(2) + (target.y - offset.y).pow(2)
 }

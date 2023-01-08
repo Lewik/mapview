@@ -20,13 +20,14 @@ actual fun Modifier.canvasGestures(
     onDragCancel: () -> Unit,
     onScroll: (scrollY: Float, target: Offset?) -> Unit,
     onClick: (offset: Offset) -> Unit,
+    features: List<Feature>,
 ): Modifier {
     return Modifier
         .onPointerEvent(PointerEventType.Scroll) {
             val change = it.changes.first()
             onScroll(-change.scrollDelta.y, change.position)
         }
-        .pointerInput(Unit) {
+        .pointerInput(features) {
             detectDragGestures(
                 onDragStart = onDragStart,
                 onDrag = { _, dragAmount -> onDrag(dragAmount) },
@@ -34,6 +35,6 @@ actual fun Modifier.canvasGestures(
                 onDragCancel = onDragCancel,
             )
         }
-        .pointerInput(Unit) { detectTapGestures(onTap = onClick) }
+        .pointerInput(features) { detectTapGestures(onTap = onClick) }
 
 }

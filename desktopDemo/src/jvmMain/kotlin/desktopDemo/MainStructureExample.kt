@@ -201,7 +201,7 @@ fun main() = application {
                     val target = getClosestFeaturesIds(
                         density = density,
                         viewData = viewData.value,
-                        features = features.value.filter { it is PointFeatureType },
+                        features = features.value.filter { it is CircleFeatureType },
                         offset = offset,
                         hitTolerance = dragHitTolerance
                     )

@@ -164,7 +164,7 @@ fun MapView(
                 onResize = onResize,
                 modifier = modifier,
                 tileSizeXY = tileSizeXY.value,
-                mapTiles = mapTiles
+                mapTiles = mapTiles,
             )
         }
     }

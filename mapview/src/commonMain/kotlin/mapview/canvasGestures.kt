@@ -10,4 +10,5 @@ expect fun Modifier.canvasGestures(
     onDragCancel: () -> Unit,
     onScroll: (scrollY: Float, target: Offset?) -> Unit,
     onClick: (offset: Offset) -> Unit,
+    features: List<Feature>,
 ): Modifier

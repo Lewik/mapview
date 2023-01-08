@@ -1,5 +1,6 @@
 package mapview
 
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -15,7 +16,13 @@ interface WithExtent {
 }
 
 sealed interface FeatureType : WithExtent
-interface PointFeatureType : FeatureType {
+interface CircleFeatureType : FeatureType {
+    val position: SchemeCoordinates
+    val radius: Dp
+    override fun getExtent() = Extent(position, position)
+}
+
+interface TextFeatureType : FeatureType {
     val position: SchemeCoordinates
     override fun getExtent() = Extent(position, position)
 }
@@ -46,7 +53,7 @@ interface LineFeatureType : FeatureType {
     override fun getExtent() = listOf(positionStart, positionEnd).toExtent()
 }
 
-sealed class Feature : WithExtent {
+sealed class Feature : WithExtent, FeatureType {
     abstract val id: FeatureId
 }
 
@@ -54,10 +61,10 @@ sealed class Feature : WithExtent {
 class CircleFeature(
     override val id: FeatureId,
     override val position: SchemeCoordinates,
-    val radius: Dp,
+    override val radius: Dp,
     val color: Color,
     val style: DrawStyle = Fill,
-) : Feature(), PointFeatureType
+) : Feature(), CircleFeatureType
 
 class LineFeature(
     override val id: FeatureId,
@@ -66,6 +73,7 @@ class LineFeature(
     val color: Color,
     val width: Dp = Stroke.HairlineWidth.dp,
     val cap: StrokeCap = Stroke.DefaultCap,
+    val pathEffect: PathEffect? = null,
 ) : Feature(), LineFeatureType
 
 class ScaledRectFeature(
@@ -75,9 +83,23 @@ class ScaledRectFeature(
     override val size: DpSize,
     val brush: Brush,
     val style: DrawStyle = Fill,
+//    val rotationAngle: Float = 0f,
+//    val cornerRadius: CornerRadius = CornerRadius.Zero,
 ) : Feature(), ScaledRectFeatureType {
 
 }
+
+class RectFeature(
+    override val id: FeatureId,
+    //left top
+    override val position: SchemeCoordinates,
+    override val size: DpSize,
+    val brush: Brush,
+    val style: DrawStyle = Fill,
+    val centerOffset: DpOffset = size.center,
+    val rotationAngle: Float = 0f,
+    val cornerRadius: CornerRadius = CornerRadius.Zero,
+) : Feature(), RectFeatureType
 
 class TextFeature(
     override val id: FeatureId,
@@ -85,7 +107,8 @@ class TextFeature(
     val text: String,
     val color: Color,
     val fontSize: Dp,
-) : Feature(), PointFeatureType
+    val centerOffset: DpOffset = DpOffset.Zero,
+) : Feature(), TextFeatureType
 
 class ImageFeature(
     override val id: FeatureId,

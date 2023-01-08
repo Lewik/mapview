@@ -12,7 +12,7 @@ pluginManagement {
 rootProject.name = "mapview"
 
 include(
-    ":androidDemo",
+//    ":androidDemo",
     ":desktopDemo",
     ":mapview"
 )
